@@ -6,10 +6,13 @@ const {
 exports.ControllerToRead = (req, res) => {
     //inside the {} you can filter results that are returned by using the syntax "fieldName: value" with a comma between each condition
     //This can be further filtered by after the {}, you can add the following code ", 'FieldName1 FieldName2 ect.'".  This will only return the fields you specified inside the ''.
+    const {UserGuess} = req.body;
     AppGameLogic.find({})
-        .then((returnedData) => {
-            console.log({ returnedData });
-            res.json(returnedData);
+        .then((ReturnedData) => {
+            //Check against the word URL
+            
+            console.log({ ReturnedData });
+            res.json(ReturnedData);
         })
         .catch((err) => {
             console.log(`The following error occurred with reading the data:\n${err}`);
