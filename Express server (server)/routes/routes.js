@@ -7,7 +7,15 @@ const {
     ControllerToCreate,
     ControllerToUpdate,
     ControllerToDelete,
-} = require("./controllers/controllers");  //imports everything from inside the {} from the controllers.js file
+} = require("./controllers/AccountControllers");  //imports everything from inside the {} from the AccountControllers.js file
+
+const {
+    ControllerToRead1,
+    ControllerToCreate1,
+    ControllerToUpdate1,
+    ControllerToDelete1,
+} = require("./controllers/PlayerEntryControllers");  //imports everything from inside the {} from the AccountControllers.js file
+
 
 //This is used to validate that the api route is working, it has no functional purposes other then that
 router.get("/", (req, res) => {
@@ -15,15 +23,15 @@ router.get("/", (req, res) => {
 });
 
 // build your routes here (<URL> is replaced with the URL you want to have the route connected to, the root route is simply "/")
-router.get("<URL>", ControllerToRead);  //links the get http response (Read) to the controller defined inside the controllers.js file
+router.get("/get", ControllerToRead);  //links the get http response (Read) to the controller defined inside the controllers.js file
 
-router.post("<URL>", ControllerToCreate);  //links the post http (Create) response to the controller defined inside the controllers.js file
+router.post("/post", ControllerToCreate);  //links the post http (Create) response to the controller defined inside the controllers.js file
 
-router.put("<URL>/:id", ControllerToUpdate);  //links the put http response (Update) to the controller defined inside the controllers.js file
+router.put("put/:id", ControllerToUpdate);  //links the put http response (Update) to the controller defined inside the controllers.js file
 //or another method that does the same thing
 //router.post("<URL>/:id", ControllerToUpdate);
 
-router.delete("<URL>/:id", ControllerToDelete);  //links the delete http response (Delete) to the controller defined inside the controllers.js file
+router.delete("delete/:id", ControllerToDelete);  //links the delete http response (Delete) to the controller defined inside the controllers.js file
 //or another method that does the same thing
 //router.post("<URL>/:id", ControllerToDelete);
 
