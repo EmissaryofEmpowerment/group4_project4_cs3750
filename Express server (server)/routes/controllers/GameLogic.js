@@ -1,6 +1,7 @@
 //make your routes here
 exports.ControllerToRead2 = (req, res) => {
     //let ValidWord= //api call
+    image.png
     
 };
 {/* 
