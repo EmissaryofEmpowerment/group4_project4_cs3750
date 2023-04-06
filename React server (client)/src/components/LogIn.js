@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+
 import axios from 'axios';
 
-import { useNavigate } from 'react-router-dom';
-import sha256 from 'js-sha256';
+// import sha256 from 'js-sha256';
 
-function LoginForm(props) {
+function LoginForm() {
   
 
     return (
