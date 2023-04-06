@@ -1,33 +1,31 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
 
-import { useNavigate } from 'react-router-dom';
-import sha256 from 'js-sha256';
 
-function LoginForm(props) {
+
+
+function LoginForm() {
   
 
     return (
 <div>
       <section>
-        <h1>Welcome to Hangman!</h1>
+        <h1>Welcome to Grid Word Finder!</h1>
         <h2>Login or Create a New Account</h2>
         <br />
         <form>
           <label>
             Username:
-            <input type="text" value={UserName} />
+            <input type="text"  />
           </label>
           <br />
           <label>
             Password:
-            <input type="password" value={password}  />
+            <input type="password"   />
           </label>
           <br />
           <br />
           <button type="submit">Login</button>
           <br />          <br />
-          <button onClick={handleClick}>Create New Account</button>
+          <button >Create New Account</button>
         </form>
       </section>
     </div>

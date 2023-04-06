@@ -9,7 +9,7 @@ Examples (the .js at the end is optional):
 import DisplayGame from './components/DisplayGame.js';
 import DisplayGameResults from './components/DisplayGameResults.js';
 */
-import Template from './components/Template'  //This can be removed for your project
+// import Template from './components/Template'  //This can be removed for your project
 import LogIn from './components/LogIn' 
 
 function App() {
@@ -23,8 +23,8 @@ function App() {
                     <Route exact path="/" element={<DisplayGame />} />
                     <Route exact path="/game-result" element={<DisplayGameResults />} />
                 */}
-                <Route exact path="/" element={<Template />} />  {/*This can be removed for your project*/}
-                <Route path="/Login" element={<LogIn />} />
+                <Route exact path="/" element={<LogIn />} />  {/*This can be removed for your project*/}
+                {/* <Route path="/Login" element={<LogIn />} /> */}
             </Routes>
         </div>
     );
