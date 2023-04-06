@@ -10,6 +10,7 @@ import DisplayGame from './components/DisplayGame.js';
 import DisplayGameResults from './components/DisplayGameResults.js';
 */
 import Template from './components/Template'  //This can be removed for your project
+import LogIn from './components/LogIn' 
 
 function App() {
     return (
@@ -23,6 +24,7 @@ function App() {
                     <Route exact path="/game-result" element={<DisplayGameResults />} />
                 */}
                 <Route exact path="/" element={<Template />} />  {/*This can be removed for your project*/}
+                <Route path="/Login" element={<LogIn />} />
             </Routes>
         </div>
     );
