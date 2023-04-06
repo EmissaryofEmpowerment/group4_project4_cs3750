@@ -10,7 +10,8 @@ exports.ControllerToRead = (req, res) => {
     AppGameLogic.find({})
         .then((ReturnedData) => {
             //Check against the word URL
-            
+            let Valid_Word = false;
+            Valid_Word ? '' : ''
             console.log({ ReturnedData });
             res.json(ReturnedData);
         })
