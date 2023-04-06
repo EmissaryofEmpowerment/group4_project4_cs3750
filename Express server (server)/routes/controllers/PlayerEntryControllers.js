@@ -1,12 +1,12 @@
 const {
-    <AppRenameMe>,
+    AppPlayerEntry,
 } = require("../../models/models");  //include our "models.js" module so we can use it inside this file.  Module documentation https://www.w3schools.com/nodejs/nodejs_modules.asp
 
 //make your routes here
-exports.ControllerToRead = (req, res) => {
+exports.ControllerToRead1 = (req, res) => {
     //inside the {} you can filter results that are returned by using the syntax "fieldName: value" with a comma between each condition
     //This can be further filtered by after the {}, you can add the following code ", 'FieldName1 FieldName2 ect.'".  This will only return the fields you specified inside the ''.
-    <AppRenameMe>.find({})
+    AppPlayerEntry.find({})
         .then((returnedData) => {
             console.log({ returnedData });
             res.json(returnedData);
@@ -20,8 +20,8 @@ exports.ControllerToRead = (req, res) => {
         });
 };
 
-exports.ControllerToCreate = (req, res) => {
-    <AppRenameMe>.create(req.body)  //req.body contains all the data that will be used to create a new entry for the DB
+exports.ControllerToCreate1 = (req, res) => {
+    AppPlayerEntry.create(req.body)  //req.body contains all the data that will be used to create a new entry for the DB
         .then((createdData) => {
             console.log({ createdData });
             res.json({
@@ -38,8 +38,8 @@ exports.ControllerToCreate = (req, res) => {
         });
 };
 
-exports.ControllerToUpdate = (req, res) => {
-    <AppRenameMe>.findByIdAndUpdate(req.params.id, req.body)
+exports.ControllerToUpdate1 = (req, res) => {
+    AppPlayerEntry.findByIdAndUpdate(req.params.id, req.body)
         .then((dataBeingUpdated) => {
             console.log({ dataBeingUpdated });
             res.json({
@@ -56,8 +56,8 @@ exports.ControllerToUpdate = (req, res) => {
         });
 };
 
-exports.ControllerToDelete = (req, res) => {
-    <AppRenameMe>.findByIdAndRemove(req.params.id, req.body)
+exports.ControllerToDelete1 = (req, res) => {
+    AppPlayerEntry.findByIdAndRemove(req.params.id, req.body)
         .then((deletedData) => {
             console.log({ deletedData });
             res.json({
