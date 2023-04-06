@@ -1,0 +1,8 @@
+# help to configure the .getignore file https://www.freecodecamp.org/news/gitignore-file-how-to-ignore-files-and-folders-in-git/
+
+# ignores all .env files
+.env
+# ignores the .vscode directory that is created when debugging in VS code
+.vscode/
+# ignores all directories, and their contents, that have the name "node_modules"
+node_modules/
