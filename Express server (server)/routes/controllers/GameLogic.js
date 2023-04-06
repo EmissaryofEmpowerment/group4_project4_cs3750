@@ -1,31 +1,6 @@
-const {
-<<<<<<<< HEAD:Express server (server)/routes/controllers/AccountControllers.js
-    AppPlayerLoginInfo,
-========
-    AppGameLogic
->>>>>>>> 5acd124451fa26c67d4bd16aec4c52948d3f91f0:Express server (server)/routes/controllers/GameLogic.js
-} = require("../../models/models");  //include our "models.js" module so we can use it inside this file.  Module documentation https://www.w3schools.com/nodejs/nodejs_modules.asp
-
 //make your routes here
-exports.ControllerToRead = (req, res) => {
-    //inside the {} you can filter results that are returned by using the syntax "fieldName: value" with a comma between each condition
-    //This can be further filtered by after the {}, you can add the following code ", 'FieldName1 FieldName2 ect.'".  This will only return the fields you specified inside the ''.
-<<<<<<<< HEAD:Express server (server)/routes/controllers/AccountControllers.js
-    AppPlayerLoginInfo.find({})
-========
-    AppGameLogic.find({})
->>>>>>>> 5acd124451fa26c67d4bd16aec4c52948d3f91f0:Express server (server)/routes/controllers/GameLogic.js
-        .then((returnedData) => {
-            console.log({ returnedData });
-            res.json(returnedData);
-        })
-        .catch((err) => {
-            console.log(`The following error occurred with reading the data:\n${err}`);
-            res.status(404).json({
-                message: "There isn't any data available",
-                error: err.message,
-            });
-        });
+exports.ControllerToRead2 = (req, res) => {
+    
 };
 {/* 
 exports.ControllerToCreate = (req, res) => {

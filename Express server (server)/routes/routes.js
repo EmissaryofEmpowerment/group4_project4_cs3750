@@ -16,6 +16,10 @@ const {
     ControllerToDelete1,
 } = require("./controllers/PlayerEntryControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
+const {
+    ControllerToRead2,
+} = require("./controllers/GameLogic");  //imports everything from inside the {} from the AccountControllers.js file
+
 
 //This is used to validate that the api route is working, it has no functional purposes other then that
 router.get("/", (req, res) => {
