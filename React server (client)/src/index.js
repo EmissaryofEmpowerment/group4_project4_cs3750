@@ -9,7 +9,7 @@ Examples (the .js at the end is optional):
 import DisplayGame from './components/DisplayGame.js';
 import DisplayGameResults from './components/DisplayGameResults.js';
 */
-import Template from './components/Template'  //This can be removed for your project
+// import Template from './components/Template'  //This can be removed for your project
 import LogIn from './components/LogIn' 
 
 function App() {
