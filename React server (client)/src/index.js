@@ -1,32 +1,63 @@
-import React from "react";
+import { React, createContext, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import axios from "./util/axios"
 import './styles.css'
-/*
-Import your components from the components folder
+// Authentication components
+import LogInForm from './components/authentication/Login';
+import NewUserForm from './components/authentication/NewUser';
+import Logout from './components/authentication/Logout';
+// Game components
+import GameScreen from './components/game/GameScreen'
+// template components
+import Navbar from './components/template/Navbar'
+// Utility tools
+import ProtectedRoute from './util/ProtectedRoute';
 
-Examples (the .js at the end is optional):
-import DisplayGame from './components/DisplayGame.js';
-import DisplayGameResults from './components/DisplayGameResults.js';
-*/
-// import Template from './components/Template'  //This can be removed for your project
-import LogIn from './components/LogIn' 
+export const UserContext = createContext({});
 
 function App() {
-    return (
-        <div>
-            <Routes>
-                {/*
-                    TODO: create react routes and component 
+    axios.defaults.withCredentials = true;  //added with professor (makes axios send credentials for every axios request)
 
-                    Example (The first is the root domain and the second is one of possibly many sub-domains):
-                    <Route exact path="/" element={<DisplayGame />} />
-                    <Route exact path="/game-result" element={<DisplayGameResults />} />
-                */}
-                <Route exact path="/" element={<LogIn />} />  {/*This can be removed for your project*/}
-                {/* <Route path="/Login" element={<LogIn />} /> */}
-            </Routes>
-        </div>
+    const [Loading, SetLoading] = useState(true);  //used to prevent the page from being displaying until the client know if they are authenticated (to prevent the client from reloading the page and being displayed the login screen for a second)
+    const [IsAuth, SetIsAuth] = useState(false);  //stores if the user is authenticated.
+
+    useEffect(() => {
+        const FetchUserAuth = async () => {
+            try {
+                SetLoading(true);
+                const IsAuthResponse = await axios.get("/api/IsAuth");
+                SetIsAuth(IsAuthResponse.data.IsAuth);
+                SetLoading(false);
+            }
+            catch (err) {
+                SetLoading(false);
+                console.log(`The following error occurred in checking authentication\n${err}`)
+            }
+        }
+        FetchUserAuth();
+    }, []);
+
+
+    return (
+        <>
+            <UserContext.Provider value={IsAuth}>
+                {Loading ?  //If the page is loading, display nothing until it is not loading
+                <></> :
+                <>
+                    <Navbar />
+                    <Routes>
+                        <Route exact path="/" element={<LogInForm SetIsAuth={SetIsAuth} />} />
+                        <Route exact path="/NewUser" element={<NewUserForm SetIsAuth={SetIsAuth} />} />  {/* This is the page that will allow new users to create an account */}
+                        <Route exact path="/Logout" element={<Logout SetIsAuth={SetIsAuth} />} />
+                        <Route element={<ProtectedRoute />}>  {/* Place the routes you wish to be protected (require someone to be logged in to view) in here */}
+                            <Route exact path="/Game" element={<GameScreen />} />  {/* This is the game board the user plays the game on */}
+
+                        </Route>
+                    </Routes>
+                </>}
+            </UserContext.Provider>
+        </>
     );
 }
 
