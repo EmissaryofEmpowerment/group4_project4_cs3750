@@ -158,7 +158,7 @@ exports.Logout = (req, res) => {
 };
 
 exports.IsAuth = (req, res) => {
-    console.log("\nSessionControllers.js file/IsAuth route");
+    console.log("\nAccountControllers.js file/IsAuth route");
     console.log(`Current Session:\n\t${JSON.stringify(req.session)}`);
     if (req.session.IsAuth) {
         console.log("User logged in");
