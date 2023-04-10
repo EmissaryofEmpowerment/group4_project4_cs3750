@@ -1,16 +1,30 @@
 import { React, useState, useEffect } from 'react';
+import axios from "../../util/axios"
 
 export function GameScreen() {
     const [PlayerWord, SetPlayerWord] = useState("");
+    const [GameBoard, SetGameBoard] = useState([]);
 
+    //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after inital load?)
+    useEffect(() => {
+        axios.get("/api/GenerateBoard")
+        .then((res) => {
+            // console.log(JSON.stringify(res.data.Board));
+            SetGameBoard(res.data.Board);
+        })
+        .catch((err) => {
+            console.log(`Unable to determine what to do with the player once they have guessed the word for the below reason\n${err.message}`);
+        });
+    }, [])
+
+    //Run this useEffect every time the PlayerWord changes
     useEffect(() => {
         const handleKeyDown = (e) => {
-            // e.preventhefault();  // documentation for object model events https://www.w3.org/TR/DOM-Level-2-Events/events.html
+            // e.preventDefault();  // documentation for object model events https://www.w3.org/TR/DOM-Level-2-Events/events.html
+            // console.log("Event listener active");
             const PressedKey = e.key;  // Extract the key and keycode of the pressed key
 
-            const re = new RegExp(/^[A-Z]$/, "i");  // Makes a regular expression that is used to determine if the key pressed is a valid character (a-z and A-Z)
-
-            if (re.exec(PressedKey) !== null) {
+            if (PressedKey.match(/^[A-Z]$/i)) {  // If the key pressed is A-Z, case insensitive
                 SetPlayerWord(PlayerWord.concat(PressedKey.toUpperCase()));  // Adds the letter to the PlayerWord
             }
             else if (PressedKey === "Backspace") {
@@ -32,30 +46,15 @@ export function GameScreen() {
             {/* The following table is hardcoded for how, but will be made enumerable later and the supplied inline-styles is how we could highlight the word */}
             <table>
                 <tbody>
-                    <tr>
-                        <th style={{backgroundColor:'aqua'}}>1</th>
-                        <th style={{backgroundColor:'aqua'}}>2</th>
-                        <th style={{backgroundColor:'aqua'}}>3</th>
-                        <th>4</th>
-                    </tr>
-                    <tr>
-                        <th>5</th>
-                        <th style={{backgroundColor:'aqua'}}>6</th>
-                        <th style={{backgroundColor:'aqua'}}>7</th>
-                        <th>8</th>
-                    </tr>
-                    <tr>
-                        <th>9</th>
-                        <th>10</th>
-                        <th style={{backgroundColor:'aqua'}}>11</th>
-                        <th>12</th>
-                    </tr>
-                    <tr>
-                        <th>13</th>
-                        <th>14</th>
-                        <th style={{backgroundColor:'aqua'}}>15</th>
-                        <th style={{backgroundColor:'aqua'}}>16</th>
-                    </tr>
+                    {GameBoard.map((Row, RowIndex) => (
+                        <tr key={RowIndex}>
+                            {Row.map((Cell, CellIndex) => (
+                                <th key={CellIndex}>{Cell}</th>
+                                //<th style={{backgroundColor:'aqua'}}>M</th>
+
+                            ))}
+                        </tr>
+                    ))}
                 </tbody>
             </table>
             <p>

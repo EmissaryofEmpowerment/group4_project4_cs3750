@@ -19,7 +19,8 @@ const {
 } = require("./controllers/PlayerEntryControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
 const {
-    ControllerToRead2,
+    GenerateBoard,
+    IsValidWord,
 } = require("./controllers/GameLogicControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
 
@@ -54,10 +55,13 @@ router.post("/Login", Login);
 
 router.post("/Logout", Logout);
 
-router.get("/IsAuth", IsAuth)
+router.get("/IsAuth", IsAuth);
 //#endregion
 
 //#region PlayerEntry routes
+router.get("/GenerateBoard", GenerateBoard);
+
+router.get("/IsValidWord/:Word", IsValidWord);
 //#endregion
 
 //#region GameLogic routes
