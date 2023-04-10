@@ -1,10 +1,117 @@
 //make your routes here
-exports.ControllerToRead2 = (req, res) => {
-    //let ValidWord= //api call
-    image.png
-    
+let ServerGameBoard;  //Make a global variable to store the game board fro the server
+
+exports.GenerateBoard = (req, res) => {
+    console.log("\nGameLogicControllers.js file/GenerateBoard route");
+    ServerGameBoard = [
+        Array(6).fill(null),
+        Array(6).fill(null),
+        Array(6).fill(null),
+        Array(6).fill(null),
+        Array(6).fill(null),
+        Array(6).fill(null)
+    ];  //makes a array that is 6 columns and 6 rows (only the middle will be displayed to the user)
+    const Vowels = ['A', 'E', 'I', 'O', 'U'];
+    const Consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
+    let LetterPool = ['V', 'V', 'V', 'V', 'V', 'V', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'];  //Make a letter pool of 7 vowels and 9 consonants
+    for (let Row = 1; Row < ServerGameBoard.length - 1; Row++) {
+        for (let Column = 1; Column < ServerGameBoard[Row].length - 1; Column++) {
+            const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
+            const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
+            const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
+            ServerGameBoard[Row][Column] = Letter;  // Assign the letter to the ServerGameBoard
+
+            // console.log(`LetterPool Length = ${LetterPool.length}
+            // \rRandSelector = ${RandSelector}
+            // \rVowel or Constant = '${VowOrConst}'
+            // \rLetter selected = ${Letter}\n`);  // For debugging
+        }
+    }
+
+    let ClientGameBoard = ServerGameBoard;  //Make a copy of the ServerGameBoard to modify and send to the client
+    // console.log(JSON.stringify(ClientGameBoard));
+    ClientGameBoard.splice(0, 1);  //Removes the first row from the Board
+    ClientGameBoard.splice(ClientGameBoard.length - 1, 1);  //Removes the last row from the Board
+    ClientGameBoard.forEach((Row, Index) => {
+        ClientGameBoard[Index].splice(0, 1);  //Removes the first column from the Board
+        ClientGameBoard[Index].splice(ClientGameBoard[Index].length - 1, 1)  //Removes the last column from the Board
+    });
+    // console.log(JSON.stringify(ClientGameBoard));
+
+    res.json({
+        Board: ClientGameBoard,
+    });
 };
-{/* 
+
+//Recursion function to help with the IsValidWord route
+function FindWord(Word) {
+    ServerGameBoard.map((Row, RowIndex) => {
+        Row.map((Cell, ColumnIndex) => {
+            if (Cell == Word[0] && FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //If the first character was found and the recursion found the word, then return true.
+                return true;
+            }
+        });
+    });
+    return false;  //The word was not found
+};
+
+//This function will always start at the bottom right cell connected to the letter of the first word 
+function FindWordRecursion(Word, _Row, _Column) {  //Need to keep some track of the cells we have gone through to prevent us from moving backwards and selecting a previously selected cell.
+    let CurrentRow = _Row;
+    let RowMultiplier = -1;
+    let CurrentColumn = _Column;
+    let ColumnMultiplier = -1;
+
+    // base case
+    if(Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+        return true;
+    }
+
+    //recursion
+    for (let Side = 0; Side < 4; Side++) {
+        if (Side % 2 == 0) { //We are moving vertically
+            for (let Run = 1; Run < 3; Run++) {
+                CurrentRow += Run * RowMultiplier;
+                if (Word[0] == ServerGameBoard[CurrentRow][CurrentColumn]) {  // If we found the letter
+                    return FindWordRecursion(Word.splice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
+                }
+            }
+            RowMultiplier *= -1;  //Reverse the direction for when it moves down the other side
+        }
+        else {   //We are moving horizontally
+            for (let Run = 1; Run < 3; Run++) {
+                CurrentColumn += Run * ColumnMultiplier;
+                if (Word[0] == ServerGameBoard[CurrentRow][CurrentColumn]) {  // If we found the letter
+                    return FindWordRecursion(Word.splice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
+                }
+            }
+            ColumnMultiplier *= -1;  //Reverse the direction for when it moves right to the other side
+        }
+    }
+    return false;  //None of the adjacent cells have the next letter
+};
+
+exports.IsValidWord = async (req, res) => {
+    console.log("\nGameLogicControllers.js file/IsValidWord route");
+    console.log(`Determining if the word "${req.params.Word}" is a valid word`);
+    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${req.params.Word}`);
+    const dataj = await data.json();
+
+    if (dataj[0] && dataj[0].word) { //if the word is a word with a definition, then check to make sure it is on the board
+        console.log("The word has a definition, now checking to see if it on the board");
+        WordFound = FindWord(req.params.Word);  //need to debug because it is saying it can't find a word when it is on the board.
+        console.log(`Word on the board: ${WordFound}`);
+    }
+    else {
+        console.log("The word doesn't have a definition");
+    }
+
+    res.json({
+        IsWord: dataj[0].word ? true : false,
+        WordOnBoard: WordFound,
+    })
+};
+{/*
 exports.ControllerToCreate = (req, res) => {
     AppPlayerLoginInfo.create(req.body)  //req.body contains all the data that will be used to create a new entry for the DB
         .then((createdData) => {
