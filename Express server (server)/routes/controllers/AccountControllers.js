@@ -43,19 +43,20 @@ exports.CreateUser = (req, res) => {
             req.session.save(function(err) {  //saves the session and cookie for both the client and server
                 if(err) {
                     console.log(`The following error occurred in saving the session:\n\r\t${err}`);
+                    res.send({
+                        IsAuth: false,
+                    });
                 }
                 else {
                     console.log("The session is now " + JSON.stringify(req.session));
                     // res.send(JSON.stringify(req.session));  //only for debugging
                     res.json({
+                        message: "Cheers!! You have successfully created a new user",
                         IsAuth: true,
                     });
                 }
             });
-            res.json({
-                message: "Cheers!! You have successfully created a new user",
-                IsAuth: true,
-            });
+            
         })
         .catch((err) => {
             console.log(`The following error occurred in creating the new user:\n\r\t${err}`)
