@@ -47,8 +47,11 @@ exports.GenerateBoard = (req, res) => {
 function FindWord(Word) {
     ServerGameBoard.map((Row, RowIndex) => {
         Row.map((Cell, ColumnIndex) => {
-            if (Cell == Word[0] && FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //If the first character was found and the recursion found the word, then return true.
-                return true;
+            if(Cell == Word[0]) {  //If the first character was found and the recursion found the word, then return true.
+                console.log(`Found a "${Word[0]}" at row ${RowIndex} column ${ColumnIndex}`);
+                if(FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //Moved for debugging only
+                    return true;
+                }
             }
         });
     });
