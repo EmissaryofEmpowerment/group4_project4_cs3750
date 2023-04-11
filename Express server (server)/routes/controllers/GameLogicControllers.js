@@ -28,15 +28,27 @@ exports.GenerateBoard = (req, res) => {
         }
     }
 
-    let ClientGameBoard = ServerGameBoard;  //Make a copy of the ServerGameBoard to modify and send to the client
-    // console.log(JSON.stringify(ClientGameBoard));
+    // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board is constant)
+    // ServerGameBoard[1] = [null, 'R', 'A', 'M', 'F', null];
+    // ServerGameBoard[2] = [null, 'C', 'E', 'K', 'O', null];
+    // ServerGameBoard[3] = [null, 'T', 'H', 'V', 'U', null];
+    // ServerGameBoard[4] = [null, 'S', 'B', 'A', 'D', null];
+
+    let ClientGameBoard = JSON.parse(JSON.stringify(ServerGameBoard));  //Make a COPY (by using the JSON.parse() and JSON.stringify() functions, other wise it just creates a pointer to both degrees of the 2d array ServerGameBoard) of the ServerGameBoard to modify and send to the client
     ClientGameBoard.splice(0, 1);  //Removes the first row from the Board
     ClientGameBoard.splice(ClientGameBoard.length - 1, 1);  //Removes the last row from the Board
     ClientGameBoard.forEach((Row, Index) => {
         ClientGameBoard[Index].splice(0, 1);  //Removes the first column from the Board
         ClientGameBoard[Index].splice(ClientGameBoard[Index].length - 1, 1)  //Removes the last column from the Board
     });
-    // console.log(JSON.stringify(ClientGameBoard));
+    console.log("Server game board:");
+    ServerGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
+        console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
+    });
+    console.log("Client game board:");
+    ClientGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
+        console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
+    });
 
     res.json({
         Board: ClientGameBoard,
@@ -45,17 +57,23 @@ exports.GenerateBoard = (req, res) => {
 
 //Recursion function to help with the IsValidWord route
 function FindWord(Word) {
-    ServerGameBoard.map((Row, RowIndex) => {
-        Row.map((Cell, ColumnIndex) => {
-            if(Cell == Word[0]) {  //If the first character was found and the recursion found the word, then return true.
-                console.log(`Found a "${Word[0]}" at row ${RowIndex} column ${ColumnIndex}`);
-                if(FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //Moved for debugging only
-                    return true;
-                }
-            }
-        });
+    console.log("Server game board:");
+    ServerGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
+        console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
     });
-    return false;  //The word was not found
+    console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".`)
+    let WordFound = false;
+    for(let Row = 1; Row <= 4; Row++) {
+        // console.log(`checking row ${ServerGameBoard[Row]}`);
+        for(let Column = 1; Column <= 4; Column++) {
+            // console.log(`accessing cell "${ServerGameBoard[Row][Column]}" at row ${Row} column ${Column}`);
+            if(Word[0] == ServerGameBoard[Row][Column]) {  //If the first character was found and the recursion found the word, then return true.
+                console.log(`Found a "${Word[0]}" at row ${Row} column ${Column}`);
+                WordFound = WordFound | FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1);  //makes use of bitwise OR assignment so it can search the entire game board for the word instead of just the first instance of the letter, however it will return a 0 for false and a 1 for true.
+            }
+        }     
+    }
+    return WordFound;  //The word was not found
 };
 
 //This function will always start at the bottom right cell connected to the letter of the first word 
@@ -66,31 +84,38 @@ function FindWordRecursion(Word, _Row, _Column) {  //Need to keep some track of 
     let ColumnMultiplier = -1;
 
     // base case
-    if(Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+    if(Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+        console.log("Found all the letters for the word on the board.");
         return true;
     }
 
+    console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
     //recursion
     for (let Side = 0; Side < 4; Side++) {
         if (Side % 2 == 0) { //We are moving vertically
             for (let Run = 1; Run < 3; Run++) {
-                CurrentRow += Run * RowMultiplier;
+                CurrentRow += 1 * RowMultiplier;
+                // console.log(`accessing cell "${ServerGameBoard[CurrentRow][CurrentColumn]}" at row ${CurrentRow} column ${CurrentColumn}`);
                 if (Word[0] == ServerGameBoard[CurrentRow][CurrentColumn]) {  // If we found the letter
-                    return FindWordRecursion(Word.splice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
+                    console.log(`Found a "${Word[0]}" at row ${CurrentRow} column ${CurrentColumn}`);
+                    return FindWordRecursion(Word.slice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
                 }
             }
             RowMultiplier *= -1;  //Reverse the direction for when it moves down the other side
         }
         else {   //We are moving horizontally
             for (let Run = 1; Run < 3; Run++) {
-                CurrentColumn += Run * ColumnMultiplier;
+                CurrentColumn += 1 * ColumnMultiplier;
+                // console.log(`accessing cell "${ServerGameBoard[CurrentRow][CurrentColumn]}" at row ${CurrentRow} column ${CurrentColumn}`);
                 if (Word[0] == ServerGameBoard[CurrentRow][CurrentColumn]) {  // If we found the letter
-                    return FindWordRecursion(Word.splice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
+                    console.log(`Found a "${Word[0]}" at row ${CurrentRow} column ${CurrentColumn}`);
+                    return FindWordRecursion(Word.slice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
                 }
             }
             ColumnMultiplier *= -1;  //Reverse the direction for when it moves right to the other side
         }
     }
+    console.log(`Couldn't find a "${Word[0]}" next to row ${CurrentRow - 1} column ${CurrentColumn - 1}`);
     return false;  //None of the adjacent cells have the next letter
 };
 
@@ -100,19 +125,25 @@ exports.IsValidWord = async (req, res) => {
     const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${req.params.Word}`);
     const dataj = await data.json();
 
-    if (dataj[0] && dataj[0].word) { //if the word is a word with a definition, then check to make sure it is on the board
-        console.log("The word has a definition, now checking to see if it on the board");
-        WordFound = FindWord(req.params.Word);  //need to debug because it is saying it can't find a word when it is on the board.
-        console.log(`Word on the board: ${WordFound}`);
+    if (dataj[0]) { //if the word is a word with a definition, then check to make sure it is on the board
+        console.log("The word has a definition, now checking to see if it on the board\n");
+        WordFound = FindWord(req.params.Word.toUpperCase());  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.
     }
     else {
         console.log("The word doesn't have a definition");
     }
 
+    if (dataj[0]) {  //For debugging only
+        console.log(`\nWord is a Word: true`);
+        console.log(`Word on the board: ${WordFound}`)
+    }
+    else {
+        console.log(`\nWord is a Word: false`);
+    }
+    
     res.json({
-        IsWord: dataj[0].word ? true : false,
-        WordOnBoard: WordFound,
-    })
+        IsValid: dataj[0] && WordFound ? true : false,
+    });
 };
 {/*
 exports.ControllerToCreate = (req, res) => {
