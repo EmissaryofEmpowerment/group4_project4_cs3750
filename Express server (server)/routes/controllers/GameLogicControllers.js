@@ -14,25 +14,25 @@ exports.GenerateBoard = (req, res) => {
     const Vowels = ['A', 'E', 'I', 'O', 'U'];
     const Consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
     let LetterPool = ['V', 'V', 'V', 'V', 'V', 'V', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'];  //Make a letter pool of 7 vowels and 9 consonants
-    for (let Row = 1; Row < ServerGameBoard.length - 1; Row++) {
-        for (let Column = 1; Column < ServerGameBoard[Row].length - 1; Column++) {
-            const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
-            const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
-            const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
-            ServerGameBoard[Row][Column] = Letter;  // Assign the letter to the ServerGameBoard
+    // for (let Row = 1; Row < ServerGameBoard.length - 1; Row++) {
+    //     for (let Column = 1; Column < ServerGameBoard[Row].length - 1; Column++) {
+    //         const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
+    //         const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
+    //         const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
+    //         ServerGameBoard[Row][Column] = Letter;  // Assign the letter to the ServerGameBoard
 
-            // console.log(`LetterPool Length = ${LetterPool.length}
-            // \rRandSelector = ${RandSelector}
-            // \rVowel or Constant = '${VowOrConst}'
-            // \rLetter selected = ${Letter}\n`);  // For debugging
-        }
-    }
+    //         // console.log(`LetterPool Length = ${LetterPool.length}
+    //         // \rRandSelector = ${RandSelector}
+    //         // \rVowel or Constant = '${VowOrConst}'
+    //         // \rLetter selected = ${Letter}\n`);  // For debugging
+    //     }
+    // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board is constant)
-    // ServerGameBoard[1] = [null, 'R', 'A', 'M', 'F', null];
-    // ServerGameBoard[2] = [null, 'C', 'E', 'K', 'O', null];
-    // ServerGameBoard[3] = [null, 'T', 'H', 'V', 'U', null];
-    // ServerGameBoard[4] = [null, 'S', 'B', 'A', 'D', null];
+    ServerGameBoard[1] = [null, 'B', 'O', 'M', 'F', null];
+    ServerGameBoard[2] = [null, 'C', 'N', 'K', 'O', null];
+    ServerGameBoard[3] = [null, 'T', 'H', 'V', 'U', null];
+    ServerGameBoard[4] = [null, 'S', 'B', 'A', 'D', null];
 
     let ClientGameBoard = JSON.parse(JSON.stringify(ServerGameBoard));  //Make a COPY (by using the JSON.parse() and JSON.stringify() functions, other wise it just creates a pointer to both degrees of the 2d array ServerGameBoard) of the ServerGameBoard to modify and send to the client
     ClientGameBoard.splice(0, 1);  //Removes the first row from the Board
@@ -135,7 +135,7 @@ exports.IsValidWord = async (req, res) => {
 
     if (dataj[0]) {  //For debugging only
         console.log(`\nWord is a Word: true`);
-        console.log(`Word on the board: ${WordFound}`)
+        console.log(`Word on the board: ${WordFound} (0 = false and 1 = true)`);
     }
     else {
         console.log(`\nWord is a Word: false`);
