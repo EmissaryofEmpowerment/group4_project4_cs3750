@@ -9,6 +9,7 @@ import NewUserForm from './components/authentication/NewUser';
 import Logout from './components/authentication/Logout';
 // Game components
 import GameScreen from './components/game/GameScreen'
+import WaitingRoom from './components/game/WaitingRoom'
 // template components
 import Navbar from './components/template/Navbar'
 // Utility tools
@@ -50,6 +51,8 @@ function App() {
                         <Route exact path="/" element={<LogInForm SetIsAuth={SetIsAuth} />} />
                         <Route exact path="/NewUser" element={<NewUserForm SetIsAuth={SetIsAuth} />} />  {/* This is the page that will allow new users to create an account */}
                         <Route exact path="/Logout" element={<Logout SetIsAuth={SetIsAuth} />} />
+                        <Route exact path="/WaitingRoom" element={<WaitingRoom SetIsAuth={SetIsAuth} />} />
+                        {/* <Route exact path="/WaitingRoom" element={<WaitingRoom SetIsAuth={SetIsAuth} />} /> */}
                         <Route element={<ProtectedRoute />}>  {/* Place the routes you wish to be protected (require someone to be logged in to view) in here */}
                             <Route exact path="/Game" element={<GameScreen />} />  {/* This is the game board the user plays the game on */}
 

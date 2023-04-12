@@ -22,7 +22,12 @@ export function LoginForm(props) {
                                 // alert("Login successful");
                                 props.SetIsAuth(res.data.IsAuth);  //store the logged in state to the index.js state variable.
                                 // setTimeout(() => {  //waits a half a second before redirecting
+<<<<<<< Updated upstream
                                 Navigate("/Game");
+=======
+                                // PNavigate("/Game");
+                                PNavigate("/WaitingRoom");
+>>>>>>> Stashed changes
                                 // }, 250);
                             }
                             else {
@@ -57,6 +62,7 @@ export function LoginForm(props) {
 
     return (
         <>
+<<<<<<< Updated upstream
             <h1>Welcome to Grid Word Finder!</h1>
             <h2>Login or Create a New Account</h2>
             <br />
@@ -68,6 +74,14 @@ export function LoginForm(props) {
                     onChange={HandleChange}
                     required
                 />
+=======
+            {IsAuth ? 
+            // <Navigate to="/Game" replace={true} /> :
+            <Navigate to="/WaitingRoom" replace={true} /> :
+            <>
+                <h1>Welcome to Grid Word Finder!</h1>
+                <h2>Login or Create a New Account</h2>
+>>>>>>> Stashed changes
                 <br />
                 <label htmlFor="Password">Password:  </label>
                 <input
