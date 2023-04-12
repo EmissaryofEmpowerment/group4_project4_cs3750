@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import axios from "../../util/axios";
 import CryptoJS from "crypto-js";
+import { UserContext } from "../../index";
 
 export function LoginForm(props) {
     const [Credentials, SetCredentials] = useState({});
     const [ErrorMsg, SetErrorMsg] = useState("");
-    const Navigate = useNavigate();  //makes a variable that we can use to navigate from one page to another when a condition is met
+    const PNavigate = useNavigate();  //makes a variable that we can use to navigate from one page to another when a condition is met
+
+    const IsAuth = useContext(UserContext);
 
     async function HandleSubmit(e) {
         e.preventDefault();
@@ -22,12 +25,7 @@ export function LoginForm(props) {
                                 // alert("Login successful");
                                 props.SetIsAuth(res.data.IsAuth);  //store the logged in state to the index.js state variable.
                                 // setTimeout(() => {  //waits a half a second before redirecting
-<<<<<<< Updated upstream
-                                Navigate("/Game");
-=======
-                                // PNavigate("/Game");
-                                PNavigate("/WaitingRoom");
->>>>>>> Stashed changes
+                                PNavigate("/Game");
                                 // }, 250);
                             }
                             else {
@@ -62,41 +60,36 @@ export function LoginForm(props) {
 
     return (
         <>
-<<<<<<< Updated upstream
-            <h1>Welcome to Grid Word Finder!</h1>
-            <h2>Login or Create a New Account</h2>
-            <br />
-            <form action="/" onSubmit={HandleSubmit}>
-                <label htmlFor="Username">Username:  </label>
-                <input
-                    type="text"
-                    id="Username"
-                    onChange={HandleChange}
-                    required
-                />
-=======
             {IsAuth ? 
-            // <Navigate to="/Game" replace={true} /> :
-            <Navigate to="/WaitingRoom" replace={true} /> :
+            <Navigate to="/Game" replace={true} /> :
             <>
                 <h1>Welcome to Grid Word Finder!</h1>
                 <h2>Login or Create a New Account</h2>
->>>>>>> Stashed changes
                 <br />
-                <label htmlFor="Password">Password:  </label>
-                <input
-                    type="password"
-                    id="Password"
-                    onChange={HandleChange}
-                    required
-                />
-                <br />
-                <p>{ErrorMsg}</p>
-                <button type="submit" className='MarginTop8'>Login</button>
-            </form>
-            <Link to="/NewUser">
-                Create New Account
-            </Link>
+                <form action="/" onSubmit={HandleSubmit}>
+                    <label htmlFor="Username">Username:  </label>
+                    <input
+                        type="text"
+                        id="Username"
+                        onChange={HandleChange}
+                        required
+                    />
+                    <br />
+                    <label htmlFor="Password">Password:  </label>
+                    <input
+                        type="password"
+                        id="Password"
+                        onChange={HandleChange}
+                        required
+                    />
+                    <br />
+                    <p>{ErrorMsg}</p>
+                    <button type="submit" className='MarginTop8'>Login</button>
+                </form>
+                <Link to="/NewUser">
+                    Create New Account
+                </Link>
+            </>}
         </>
     );
 }

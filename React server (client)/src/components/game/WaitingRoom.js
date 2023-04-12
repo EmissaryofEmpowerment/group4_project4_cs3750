@@ -1,24 +1,25 @@
 import React, { useState } from 'react';
 import { Route, useNavigate } from 'react-router-dom';
 import ProtectedRoute from '../../util/ProtectedRoute';
+import axios from "../../util/axios"
 import GameScreen from './GameScreen';
 
 function WaitingRoom() {
     const [isWaiting, setIsWaiting] = useState(true);
     const navigate = useNavigate();
 
-
-    axios.get("/api/startGame")
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.message === 'Game started') {
-                setIsWaiting(false);
-            }
-        })
-        .catch((err) => {
-            console.log(`Unable to determine what to do with the player once they have guessed the word for the below reason\n${err.message}`);
-        });
-
+    const handleStartGame = () => {
+        axios.get("/api/startGame")
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.message === 'Game started') {
+                    setIsWaiting(false);
+                }
+            })
+            .catch((err) => {
+                console.log(`Unable to determine what to do with the player once they have guessed the word for the below reason\n${err.message}`);
+            });
+    };
 
 
     // Handle redirect to GameScreen component
@@ -36,13 +37,13 @@ function WaitingRoom() {
                     <button onClick={handleStartGame}>Start Game</button>
                 </>
             )}
-            <Route element={<ProtectedRoute />}>
+            {/* <Route element={<ProtectedRoute />}>
                 <Route
                     exact
                     path="/Game"
                     element={<GameScreen redirectToGameScreen={handleRedirectToGameScreen} />}
                 />
-            </Route>
+            </Route> */}
         </div>
     );
 }
