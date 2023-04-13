@@ -25,7 +25,8 @@ export function LoginForm(props) {
                                 // alert("Login successful");
                                 props.SetIsAuth(res.data.IsAuth);  //store the logged in state to the index.js state variable.
                                 // setTimeout(() => {  //waits a half a second before redirecting
-                                PNavigate("/Game");
+                                PNavigate("/WaitingRoom");
+                                // PNavigate("/Game");
                                 // }, 250);
                             }
                             else {
@@ -61,7 +62,7 @@ export function LoginForm(props) {
     return (
         <>
             {IsAuth ? 
-            <Navigate to="/Game" replace={true} /> :
+            <Navigate to="/WaitingRoom" replace={true} /> :
             <>
                 <h1>Welcome to Grid Word Finder!</h1>
                 <h2>Login or Create a New Account</h2>
