@@ -33,7 +33,7 @@ exports.GenerateBoard = (req, res) => {
     ServerGameBoard[1] = [null, 'B', 'O', 'M', 'F', null];
     ServerGameBoard[2] = [null, 'K', 'A', 'Y', 'O', null];
     ServerGameBoard[3] = [null, 'P', 'E', 'V', 'U', null];
-    ServerGameBoard[4] = [null, 'D', 'E', 'P', 'D', null];
+    ServerGameBoard[4] = [null, 'D', 'E', 'A', 'D', null];
 
     let ClientGameBoard = JSON.parse(JSON.stringify(ServerGameBoard));  //Make a COPY (by using the JSON.parse() and JSON.stringify() functions, other wise it just creates a pointer to both degrees of the 2d array ServerGameBoard) of the ServerGameBoard to modify and send to the client
     ClientGameBoard.splice(0, 1);  //Removes the first row from the Board
@@ -107,16 +107,19 @@ function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep s
     console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
     //recursion
     for (let Side = 0; Side < 4; Side++) {
+        if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
         if (Side % 2 == 0) { //We are moving vertically
+            if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
             console.log(`moving vertically in the ${RowMultiplier} direction`)
             for (let Run = 1; Run < 3; Run++) {
+                if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
                 Row += 1 * RowMultiplier;
                 
                 console.log(`Accessing cell in row ${Row} column ${Column}`);
                 if(Word[0] === ServerGameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
                     console.log(`Valid cell found on row ${Row} column ${Column}`);
                     SelectedCells.push({"Row": Row, "Column": Column});
-                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));
+                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the CelectedCells array (This is done because objects are always passed by refference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                     console.log(`WordFound is now ${WordFound}`);
                     console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
                 }
@@ -124,17 +127,17 @@ function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep s
             RowMultiplier *= -1;  //Reverse the direction for when it moves down the other side
         }
         else {   //We are moving horizontally
+            if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
             console.log(`moving horizontally in the ${ColumnMultiplier} direction`)
             for (let Run = 1; Run < 3; Run++) {
+                if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
                 Column += 1 * ColumnMultiplier;
                 
-                if(WordFound) { break; }  //WIP
-
                 console.log(`Accessing cell in row ${Row} column ${Column}`);
                 if(Word[0] === ServerGameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
                     console.log(`A valid cell found on row ${Row} column ${Column}`);
                     SelectedCells.push({"Row": Row, "Column": Column});
-                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));
+                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the CelectedCells array (This is done because objects are always passed by refference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                     console.log(`WordFound is now ${WordFound}`);
                     console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
                 }
@@ -142,8 +145,7 @@ function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep s
             ColumnMultiplier *= -1;  //Reverse the direction for when it moves right to the other side
         }
     }
-    // console.log(`Couldn't find a "${Word[0]}" next to row ${Row - 1} column ${Column - 1}`);
-    return false;  //None of the adjacent cells have the next letter
+    return WordFound;  //returns a 0 (false) or 1 (true) back up to the calling function
 };
 
 exports.IsValidWord = async (req, res) => {
