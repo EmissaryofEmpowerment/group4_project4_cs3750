@@ -1,5 +1,6 @@
 //make your routes here
 let ServerGameBoard;  //Make a global variable to store the game board fro the server
+let waitingPlayers = []; // track number of players ready to play
 
 exports.GenerateBoard = (req, res) => {
     console.log("\nGameLogicControllers.js file/GenerateBoard route");
@@ -47,9 +48,9 @@ exports.GenerateBoard = (req, res) => {
 function FindWord(Word) {
     ServerGameBoard.map((Row, RowIndex) => {
         Row.map((Cell, ColumnIndex) => {
-            if(Cell == Word[0]) {  //If the first character was found and the recursion found the word, then return true.
+            if (Cell == Word[0]) {  //If the first character was found and the recursion found the word, then return true.
                 console.log(`Found a "${Word[0]}" at row ${RowIndex} column ${ColumnIndex}`);
-                if(FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //Moved for debugging only
+                if (FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //Moved for debugging only
                     return true;
                 }
             }
@@ -66,7 +67,7 @@ function FindWordRecursion(Word, _Row, _Column) {  //Need to keep some track of 
     let ColumnMultiplier = -1;
 
     // base case
-    if(Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+    if (Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
         return true;
     }
 
@@ -114,6 +115,39 @@ exports.IsValidWord = async (req, res) => {
         WordOnBoard: WordFound,
     })
 };
+
+exports.StartGame = async (req, res) => {
+
+    console.log("got here");
+    // Handle start game request
+    // Add player to waiting list
+    if (waitingPlayers.indexOf(req.ip) !== -1) {
+        // Send a response back to the client if the IP is found
+        //res.send("You are already in the waiting list.");
+    } else {
+        // Add the IP address of the new player to the waitingPlayers array if not found
+        waitingPlayers.push(req.ip);
+
+        // Send a response back to the client
+        //res.send("You have been added to the waiting list.");
+    }
+    console.log(waitingPlayers);
+    // If there are 2 players in the waiting list, start the game
+    if (waitingPlayers.length === 2) {
+        // Send start game signal to both players
+        res.json({ message: 'Game started' });
+
+        // Remove both players from waiting list
+        waitingPlayers = [];
+
+
+    } else {
+        res.json({ message: 'Waiting for another player' });
+    }
+};
+
+
+
 {/*
 exports.ControllerToCreate = (req, res) => {
     AppPlayerLoginInfo.create(req.body)  //req.body contains all the data that will be used to create a new entry for the DB

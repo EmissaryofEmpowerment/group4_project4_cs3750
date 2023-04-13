@@ -9,15 +9,18 @@ function WaitingRoom() {
     const navigate = useNavigate();
 
     const handleStartGame = () => {
-        axios.get("/api/startGame")
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.message === 'Game started') {
+        axios.post("/api/startGame")
+        .then((res) => {
+            console.log( res.data); // access the data property of the response object
+        })
+            .then((res) => {
+                if (res.data === 'Game started') {
                     setIsWaiting(false);
+                    console.log("game started");
                 }
             })
             .catch((err) => {
-                console.log(`Unable to determine what to do with the player once they have guessed the word for the below reason\n${err.message}`);
+                console.log(err.message);
             });
     };
 
