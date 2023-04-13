@@ -5,27 +5,23 @@ import axios from "../../util/axios"
 import GameScreen from './GameScreen';
 
 function WaitingRoom() {
-    const [isWaiting, setIsWaiting] = useState(true);
     const [status, setStatus] = useState('');
     const [start, setStart] = useState(0);
     const navigate = useNavigate();
     let intervalId;
     const handleStartGame = () => {
-        if(Number(start) === 0) {
+        if (Number(start) === 0) {
             setStart(-1)
         }
-        else if(Number(start) === -1) {
+        else if (Number(start) === -1) {
             setStart(1)
-        } 
-        else if(Number(start) === 1) {
+        }
+        else if (Number(start) === 1) {
             setStart(0)
-        } 
-        // if(start == 0) {setStart(-1)};
-        // if(start === -1) setStart(1);
-        // if(start === 1) setStart(0);
+        }
         console.log(start);
         axios.put("/api/startGame/", { start })
-        // axios.get(`http://localhost:4000/api/user/${UserName}`);
+            // axios.get(`http://localhost:4000/api/user/${UserName}`);
             .then((res) => {
                 setStatus(res.data);
                 console.log(res.data); // access the data property of the response object
@@ -69,17 +65,12 @@ function WaitingRoom() {
 
     return (
         <div>
-          {isWaiting && (
-            <>
-              <h1>Waiting Room</h1>
-              <h1>{status}</h1>
-              {start !== -1 ? <h2>You are NOT in que</h2> : <h2>You are in que</h2>}
-              <button onClick={handleStartGame}>Start Game</button>
-            </>
-          )}
+            <h1>Waiting Room</h1>
+            <h1>{status}</h1>
+            {start !== -1 ? <h2>You are NOT in que</h2> : <h2>You are in que</h2>}
         </div>
-      );
-      
+    );
+
 
 
 
