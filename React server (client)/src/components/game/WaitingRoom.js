@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
 import { Route, useNavigate } from 'react-router-dom';
-import ProtectedRoute from '../../util/ProtectedRoute';
 import axios from "../../util/axios"
-import GameScreen from './GameScreen';
 
 function WaitingRoom() {
     const [status, setStatus] = useState('');
-    const [start, setStart] = useState(0);
+    const [start, setStart] = useState(-1);
     const navigate = useNavigate();
     let intervalId;
+
+    function updateStart(start) {
+        if (start === 0) {
+          return -1;
+        } else if (start === -1) {
+          return 1;
+        } else if (start === 1) {
+          return 0;
+        } else {
+          return start;
+        }
+      }
+
     const handleStartGame = () => {
-        if (Number(start) === 0) {
-            setStart(-1)
-        }
-        else if (Number(start) === -1) {
-            setStart(1)
-        }
-        else if (Number(start) === 1) {
-            setStart(0)
-        }
+
+        setStart(updateStart(start));
         console.log(start);
         axios.put("/api/startGame/", { start })
             // axios.get(`http://localhost:4000/api/user/${UserName}`);
@@ -67,7 +71,7 @@ function WaitingRoom() {
         <div>
             <h1>Waiting Room</h1>
             <h1>{status}</h1>
-            {start !== -1 ? <h2>You are NOT in que</h2> : <h2>You are in que</h2>}
+            {start !== -1 ? <h2>You are in que</h2> : <h2>You are NOT in que</h2>}
             <button onClick={handleStartGame}>Start Game</button>
         </div>
     );
