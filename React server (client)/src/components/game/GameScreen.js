@@ -35,6 +35,7 @@ export function GameScreen() {
                 axios.get("api/IsValidWord/:" + PlayerWord)
                 .then((res) => {
                     console.log("\n" + PlayerWord + " returned this from the server:" + res.data.valid + "\n");
+                    document.getElementById("server_response").innerText = res.data.valid;
                 })
                 .catch((err) => {
                     console.log("\n Is valid word failed. for this reason: " + err.message + "\n");
@@ -67,6 +68,7 @@ export function GameScreen() {
                 Current Word<br />
                 {PlayerWord}
             </p>
+            <p id="server_response"></p>
         </>
     );
 }

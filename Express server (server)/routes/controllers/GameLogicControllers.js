@@ -127,7 +127,6 @@ exports.IsValidWord = async (req, res) => {
     // const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${req.params.Word}`);
     // const dataj = await data.json();
 
-<<<<<<< HEAD
     // if (dataj[0] && dataj[0].word) { //if the word is a word with a definition, then check to make sure it is on the board
     //     console.log("The word has a definition, now checking to see if it on the board");
     //     WordFound = FindWord(req.params.Word);  //need to debug because it is saying it can't find a word when it is on the board.
@@ -141,27 +140,6 @@ exports.IsValidWord = async (req, res) => {
     //     IsWord: dataj[0].word ? true : false,
     //     WordOnBoard: WordFound,
     // })
-=======
-    if (dataj[0]) { //if the word is a word with a definition, then check to make sure it is on the board
-        console.log("The word has a definition, now checking to see if it on the board\n");
-        WordFound = FindWord(req.params.Word.toUpperCase());  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.
-    }
-    else {
-        console.log("The word doesn't have a definition");
-    }
-
-    if (dataj[0]) {  //For debugging only
-        console.log(`\nWord is a Word: true`);
-        console.log(`Word on the board: ${WordFound} (0 = false and 1 = true)`);
-    }
-    else {
-        console.log(`\nWord is a Word: false`);
-    }
-    
-    res.json({
-        IsValid: dataj[0] && WordFound ? true : false,
-    });
->>>>>>> a989973f301db6d540f8d600c74a90a1f0e1c083
 };
 {/*
 exports.ControllerToCreate = (req, res) => {
