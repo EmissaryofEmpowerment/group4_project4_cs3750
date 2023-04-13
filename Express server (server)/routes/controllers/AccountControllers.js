@@ -2,6 +2,11 @@ const {
     AppPlayerLoginInfo,
 } = require("../../models/models");  //include our "models.js" module so we can use it inside this file.  Module documentation https://www.w3schools.com/nodejs/nodejs_modules.asp
 
+let waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
+// let waitingPlayers = []; // track number of players ready to play
+let timerRunning = false;
+
+
 //make your routes here
 exports.UsernameUsed = (req, res) => {
     console.log("\nAccountControllers.js file/UsernameBeingUsed route");
@@ -40,8 +45,8 @@ exports.CreateUser = (req, res) => {
             console.log({ CreatedUser });
             req.session.IsAuth = true;
             req.session.User = CreatedUser.Username;
-            req.session.save(function(err) {  //saves the session and cookie for both the client and server
-                if(err) {
+            req.session.save(function (err) {  //saves the session and cookie for both the client and server
+                if (err) {
                     console.log(`The following error occurred in saving the session:\n\r\t${err}`);
                     res.send({
                         IsAuth: false,
@@ -56,7 +61,7 @@ exports.CreateUser = (req, res) => {
                     });
                 }
             });
-            
+
         })
         .catch((err) => {
             console.log(`The following error occurred in creating the new user:\n\r\t${err}`)
@@ -106,8 +111,11 @@ exports.Login = (req, res) => {
                 //make the session with two variables
                 req.session.IsAuth = true;
                 req.session.User = User.Username;
-                req.session.save(function(err) {  //saves the session and cookie for both the client and server
-                    if(err) {
+                console.log("waitingPlayers before " + waitingPlayers);
+                waitingPlayers++;
+                console.log("waitingPlayers after " + waitingPlayers);
+                req.session.save(function (err) {  //saves the session and cookie for both the client and server
+                    if (err) {
                         console.log(`The following error occurred in saving the session:\n\r\t${err}`);
                     }
                     else {
@@ -148,6 +156,9 @@ exports.Logout = (req, res) => {
             });
         }
         else {
+            if (waitingPlayers > 0) { waitingPlayers--; }
+            else if (waitingPlayers === 0 || waitingPlayers < 0) { waitingPlayer = 0; }
+            console.log("waitingPlayers " + waitingPlayers);
             console.log("Logout successful");
             // res.clearCookie(process.env.COOKIE_NAME);  // (not used because the moment they reload any page it is recreated) Deletes the cookie from the client.  Solution source https://www.geeksforgeeks.org/express-js-res-clearcookie-function/
             console.log("The session is now " + JSON.stringify(req.session));
@@ -173,4 +184,48 @@ exports.IsAuth = (req, res) => {
             IsAuth: false
         });
     }
+};
+
+// start game from waiting room
+exports.StartGame = async (req, res) => {
+    console.log("got here");
+    console.log(req.body.start);
+    waitingPlayers = waitingPlayers + req.body.start; // the user is either added or removed from que
+    console.log("waitingPlayers " + waitingPlayers);
+    if (waitingPlayers === 0) {
+        // Send start game signal to both players
+        res.send('Game started');
+        startTimer();
+    } else {
+        res.send('Waiting for another player');
+    }
+};
+
+// the timer starts when there are two plays in the room ready to play
+function startTimer() {
+    if (!timerRunning) {
+        console.log('Timer started');
+        timerRunning = true;
+        setTimeout(() => {
+            console.log('Timer ended');
+            timerRunning = false;
+        }, 3000);
+    } else {
+        console.log('Timer is already running');
+    }
+}
+
+exports.checkTimer = async (req, res) => {
+    if (timerRunning) {
+        console.log('Timer is currently running');
+        res.send('Timer is currently running');
+    }
+    if (!timerRunning && waitingPlayers === 0) {
+        console.log('Timer is finished');
+        res.send('Timer is finished');
+    }
+    else {
+        //res.send('Game not ready');
+    }
+
 };

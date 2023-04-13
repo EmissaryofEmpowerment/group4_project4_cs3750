@@ -1,7 +1,6 @@
 //make your routes here
 let ServerGameBoard;  //Make a global variable to store the game board fro the server
-let waitingPlayers = []; // track number of players ready to play
-let timerRunning = false;
+
 
 exports.GenerateBoard = (req, res) => {
     console.log("\nGameLogicControllers.js file/GenerateBoard route");
@@ -117,66 +116,66 @@ exports.IsValidWord = async (req, res) => {
     })
 };
 
-exports.StartGame = async (req, res) => {
-    console.log("got here");
-    // Handle start game request
-    // Add player to waiting list
-    if (waitingPlayers.indexOf(req.session.User) !== -1) {
-        // Send a response back to the client if the IP is found
-        //res.send("You are already in the waiting list.");
-    } else {
-        // Add the IP address of the new player to the waitingPlayers array if not found
-        waitingPlayers.push(req.session.User);
+// exports.StartGame = async (req, res) => {
+//     console.log("got here");
+//     console.log(req.body.start);
+//     waitingPlayers = waitingPlayers + req.body.start;
+//     // Handle start game request
+//     // Add player to waiting list
+//     if (waitingPlayers === 0) {
+//         // Send a response back to the client if the IP is found
+//         //res.send("You are already in the waiting list.");
+//     } else {
+//         // Add the IP address of the new player to the waitingPlayers array if not found
+//         // waitingPlayers.push(req.session.User);
 
-        // Send a response back to the client
-        //res.send("You have been added to the waiting list.");
-    }
-    console.log(waitingPlayers);
+//     }
+//     console.log(waitingPlayers);
 
-    if (waitingPlayers.length === 2) {
-        // Send start game signal to both players
-        res.send('Game started');
-        startTimer();
-        // Remove both players from waiting list
-        waitingPlayers = [];
-    } else {
-        res.send('Waiting for another player');
-    }
-};
+//     if (waitingPlayers === 0) {
+//         // Send start game signal to both players
+//         res.send('Game started');
+//         startTimer();
+//         // Remove both players from waiting list
+//         // waitingPlayers = [];
+//     } else {
+//         res.send('Waiting for another player');
+//     }
+// };
 
-// the timer starts when there are two plays in the room ready to play
-function startTimer() {
-    if (!timerRunning) {
-        console.log('Timer started');
-        timerRunning = true;
-        setTimeout(() => {
-            console.log('Timer ended');
-            timerRunning = false;
-        }, 3000);
-    } else {
-        console.log('Timer is already running');
-    }
-}
+// // the timer starts when there are two plays in the room ready to play
+// function startTimer() {
+//     if (!timerRunning) {
+//         console.log('Timer started');
+//         timerRunning = true;
+//         setTimeout(() => {
+//             console.log('Timer ended');
+//             timerRunning = false;
+//         }, 3000);
+//     } else {
+//         console.log('Timer is already running');
+//     }
+// }
 
 
 
-exports.checkTimer = async (req, res) => {
-    if (timerRunning) {
-        console.log('Timer is currently running');
-        res.send('Timer is currently running');
-    } 
-    if (!timerRunning) {
-        console.log('Timer is finished');
-        res.send('Timer is finished');
-    }
+// exports.checkTimer = async (req, res) => {
+//     if (timerRunning) {
+//         console.log('Timer is currently running');
+//         res.send('Timer is currently running');
+//     } 
+//     if (!timerRunning) {
+//         console.log('Timer is finished');
+//         res.send('Timer is finished');
+//     }
        
-    else {
-        console.log('Timer is finished');
-        if (waitingPlayers.length === 2) {
-            res.send('Timer is finished');
-        }
-    }
-};
+//     else {
+//         console.log('Timer is finished');
+//         if (waitingPlayers.length === 2) {
+//             res.send('Timer is finished');
+//         }
+//     }
+// };
 
 {/*
 exports.ControllerToCreate = (req, res) => {

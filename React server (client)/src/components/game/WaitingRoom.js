@@ -7,16 +7,31 @@ import GameScreen from './GameScreen';
 function WaitingRoom() {
     const [isWaiting, setIsWaiting] = useState(true);
     const [status, setStatus] = useState('');
+    const [start, setStart] = useState(0);
     const navigate = useNavigate();
-
+    let intervalId;
     const handleStartGame = () => {
-        axios.get("/api/startGame")
+        if(Number(start) === 0) {
+            setStart(-1)
+        }
+        else if(Number(start) === -1) {
+            setStart(1)
+        } 
+        else if(Number(start) === 1) {
+            setStart(0)
+        } 
+        // if(start == 0) {setStart(-1)};
+        // if(start === -1) setStart(1);
+        // if(start === 1) setStart(0);
+        console.log(start);
+        axios.put("/api/startGame/", { start })
+        // axios.get(`http://localhost:4000/api/user/${UserName}`);
             .then((res) => {
                 setStatus(res.data);
                 console.log(res.data); // access the data property of the response object
                 if (res.data === 'Game started') {
                     // setIsWaiting(false);
-                    const intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
+                    intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
                     setTimeout(() => {
                         clearInterval(intervalId); // Stop the loop after 2 minutes
                     }, 120000);
@@ -28,22 +43,6 @@ function WaitingRoom() {
             });
     };
 
-
-    // const checkStartGameTimer = () => {
-    //     axios.post("/api/checkTimer")
-    //         .then((res) => {
-    //             console.log(res.data); // access the data property of the response object
-    //         })
-    //         .then((res) => {
-    //             if (res.data === 'Game started') {
-    //                 handleRedirectToGameScreen();
-    //                 console.log("game started");
-    //             }
-    //         })
-    //         .catch((err) => {
-    //             console.log(err.message);
-    //         });
-    // };
 
     const checkStartGameTimer = () => {
         axios.get("/api/checkTimer")
@@ -68,34 +67,40 @@ function WaitingRoom() {
     };
 
 
-
-
-
-
-
-
-
-
-
     return (
-        <div >
-            {/* <div className="WaitingRoom"> */}
-            {isWaiting && (
-                <>
-                    <h1>Waiting Room</h1>
-                    <h1>{status}</h1>
-                    <button onClick={handleStartGame}>Start Game</button>
-                </>
-            )}
-            {/* <Route element={<ProtectedRoute />}>
-                <Route
-                    exact
-                    path="/Game"
-                    element={<GameScreen redirectToGameScreen={handleRedirectToGameScreen} />}
-                />
-            </Route> */}
+        <div>
+          {isWaiting && (
+            <>
+              <h1>Waiting Room</h1>
+              <h1>{status}</h1>
+              {start !== -1 ? <h2>You are NOT in que</h2> : <h2>You are in que</h2>}
+              <button onClick={handleStartGame}>Start Game</button>
+            </>
+          )}
         </div>
-    );
+      );
+      
+
+
+
+
+
+
+
+
+    // return (
+    //     <div >
+    //         {/* <div className="WaitingRoom"> */}
+    //         {isWaiting && (
+    //             <>
+    //                 <h1>Waiting Room</h1>
+    //                 <h1>{status}</h1>
+    //                 {start !=0} (<><h2>gee</h2></>)
+    //                 <button onClick={handleStartGame}>Start Game</button>
+    //             </>
+    //         )}
+    //     </div>
+    // );
 }
 
 export default WaitingRoom;
