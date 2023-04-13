@@ -17,9 +17,9 @@ function WaitingRoom() {
                 if (res.data === 'Game started') {
                     // setIsWaiting(false);
                     const intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
-                    // setTimeout(() => {
-                    //     clearInterval(intervalId); // Stop the loop after 2 minutes
-                    // }, 120000);
+                    setTimeout(() => {
+                        clearInterval(intervalId); // Stop the loop after 2 minutes
+                    }, 120000);
                     console.log("game started");
                 }
             })
