@@ -31,10 +31,17 @@ export function GameScreen() {
                 SetPlayerWord(PlayerWord.slice(0, -1));  // Removes the last letter from PlayerWord.  Source https://masteringjs.io/tutorials/fundamentals/remove-last-character
             }
             else if (PressedKey === "Enter") {
-                // See if the player's word is a actual word
+                console.log("\n" + PlayerWord + " will now be sent to the server\n");
+                axios.get("api/IsValidWord/:" + PlayerWord)
+                .then((res) => {
+                    console.log("\n" + PlayerWord + " returned this from the server:" + res.data.valid + "\n");
+                    document.getElementById("server_response").innerText = res.data.valid;
+                })
+                .catch((err) => {
+                    console.log("\n Is valid word failed. for this reason: " + err.message + "\n");
+                });
                 SetPlayerWord("");  //Then reset the word so they can find a new word
-            }
-        }
+        }}
         window.addEventListener('keydown', handleKeyDown);
 
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
@@ -61,6 +68,7 @@ export function GameScreen() {
                 Current Word<br />
                 {PlayerWord}
             </p>
+            <p id="server_response"></p>
         </>
     );
 }

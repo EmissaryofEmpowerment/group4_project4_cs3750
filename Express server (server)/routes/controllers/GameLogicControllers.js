@@ -15,29 +15,42 @@ exports.GenerateBoard = (req, res) => {
     const Vowels = ['A', 'E', 'I', 'O', 'U'];
     const Consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
     let LetterPool = ['V', 'V', 'V', 'V', 'V', 'V', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'];  //Make a letter pool of 7 vowels and 9 consonants
-    for (let Row = 1; Row < ServerGameBoard.length - 1; Row++) {
-        for (let Column = 1; Column < ServerGameBoard[Row].length - 1; Column++) {
-            const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
-            const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
-            const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
-            ServerGameBoard[Row][Column] = Letter;  // Assign the letter to the ServerGameBoard
+    // for (let Row = 1; Row < ServerGameBoard.length - 1; Row++) {
+    //     for (let Column = 1; Column < ServerGameBoard[Row].length - 1; Column++) {
+    //         const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
+    //         const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
+    //         const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
+    //         ServerGameBoard[Row][Column] = Letter;  // Assign the letter to the ServerGameBoard
 
-            // console.log(`LetterPool Length = ${LetterPool.length}
-            // \rRandSelector = ${RandSelector}
-            // \rVowel or Constant = '${VowOrConst}'
-            // \rLetter selected = ${Letter}\n`);  // For debugging
-        }
-    }
+    //         // console.log(`LetterPool Length = ${LetterPool.length}
+    //         // \rRandSelector = ${RandSelector}
+    //         // \rVowel or Constant = '${VowOrConst}'
+    //         // \rLetter selected = ${Letter}\n`);  // For debugging
+    //     }
+    // }
 
-    let ClientGameBoard = ServerGameBoard;  //Make a copy of the ServerGameBoard to modify and send to the client
-    // console.log(JSON.stringify(ClientGameBoard));
+    // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board is constant)
+    //words that should fail bob, kayak, peep, deed
+    ServerGameBoard[1] = [null, 'B', 'O', 'M', 'F', null];
+    ServerGameBoard[2] = [null, 'K', 'A', 'Y', 'O', null];
+    ServerGameBoard[3] = [null, 'P', 'E', 'V', 'U', null];
+    ServerGameBoard[4] = [null, 'D', 'E', 'A', 'D', null];
+
+    let ClientGameBoard = JSON.parse(JSON.stringify(ServerGameBoard));  //Make a COPY (by using the JSON.parse() and JSON.stringify() functions, other wise it just creates a pointer to both degrees of the 2d array ServerGameBoard) of the ServerGameBoard to modify and send to the client
     ClientGameBoard.splice(0, 1);  //Removes the first row from the Board
     ClientGameBoard.splice(ClientGameBoard.length - 1, 1);  //Removes the last row from the Board
     ClientGameBoard.forEach((Row, Index) => {
         ClientGameBoard[Index].splice(0, 1);  //Removes the first column from the Board
         ClientGameBoard[Index].splice(ClientGameBoard[Index].length - 1, 1)  //Removes the last column from the Board
     });
-    // console.log(JSON.stringify(ClientGameBoard));
+    // console.log("Server game board:");
+    // ServerGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
+    //     console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
+    // });
+    // console.log("Client game board:");
+    // ClientGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
+    //     console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
+    // });
 
     res.json({
         Board: ClientGameBoard,
@@ -46,188 +59,120 @@ exports.GenerateBoard = (req, res) => {
 
 //Recursion function to help with the IsValidWord route
 function FindWord(Word) {
-    ServerGameBoard.map((Row, RowIndex) => {
-        Row.map((Cell, ColumnIndex) => {
-            if (Cell == Word[0]) {  //If the first character was found and the recursion found the word, then return true.
-                console.log(`Found a "${Word[0]}" at row ${RowIndex} column ${ColumnIndex}`);
-                if (FindWordRecursion(Word.splice(1, Word.length), RowIndex + 1, ColumnIndex + 1)) {  //Moved for debugging only
-                    return true;
-                }
+    // console.log("Server game board:");
+    // ServerGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
+    //     console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
+    // });
+    console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".\n`)
+    let WordFound = false;
+    for(let Row = 1; Row <= 4; Row++) {
+        // console.log(`checking row ${ServerGameBoard[Row]}`);
+        for(let Column = 1; Column <= 4; Column++) {
+            // console.log(`accessing cell "${ServerGameBoard[Row][Column]}" at row ${Row} column ${Column}`);
+            if(Word[0] == ServerGameBoard[Row][Column]) {  //If the first character was found and the recursion found the word, then return true.
+                console.log(`Found a "${Word[0]}" at row ${Row} column ${Column}`);
+                WordFound = WordFound | FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, [{"Row": Row, "Column": Column}]);  //makes use of bitwise OR assignment so it can search the entire game board for the word instead of just the first instance of the letter, however it will return a 0 for false and a 1 for true.
             }
-        });
-    });
-    return false;  //The word was not found
+        }     
+    }
+    return WordFound;  //The word was not found
 };
 
+function CellNotUsed(CurrentCell, PastCells) {
+    // const Result = PastCells.find((SelectedCell) => {  //This finds the first instance inside the PastCells that match the contents of the CurrentCell, if it doesn't find one, the variable will be undefined.
+    //     CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column
+    // });
+    let NotUsed = false;
+    PastCells.forEach((SelectedCell) => {
+        NotUsed |= CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column;
+    });
+    console.log(`PastCells = ${JSON.stringify(PastCells)}`);
+    console.log(`CurrentCell = ${JSON.stringify(CurrentCell)}`);
+    console.log(`Result for CellNotUsed() = ${NotUsed ? false : true}`);  //JSON.stringify(Result)
+    return NotUsed ? false : true;
+}
+
 //This function will always start at the bottom right cell connected to the letter of the first word 
-function FindWordRecursion(Word, _Row, _Column) {  //Need to keep some track of the cells we have gone through to prevent us from moving backwards and selecting a previously selected cell.
-    let CurrentRow = _Row;
+function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep some track of the cells we have gone through to prevent us from moving backwards and selecting a previously selected cell.
+    // console.log(`SelectedCells = ${JSON.stringify(SelectedCells)}`);
     let RowMultiplier = -1;
-    let CurrentColumn = _Column;
     let ColumnMultiplier = -1;
+    let WordFound = false;
 
     // base case
-    if (Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+    if(Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+        console.log("Found all the letters for the word on the board.");
         return true;
     }
 
+    console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
     //recursion
     for (let Side = 0; Side < 4; Side++) {
+        if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
         if (Side % 2 == 0) { //We are moving vertically
+            if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+            console.log(`moving vertically in the ${RowMultiplier} direction`)
             for (let Run = 1; Run < 3; Run++) {
-                CurrentRow += Run * RowMultiplier;
-                if (Word[0] == ServerGameBoard[CurrentRow][CurrentColumn]) {  // If we found the letter
-                    return FindWordRecursion(Word.splice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
+                if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+                Row += 1 * RowMultiplier;
+                
+                console.log(`Accessing cell in row ${Row} column ${Column}`);
+                if(Word[0] === ServerGameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
+                    console.log(`Valid cell found on row ${Row} column ${Column}`);
+                    SelectedCells.push({"Row": Row, "Column": Column});
+                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the CelectedCells array (This is done because objects are always passed by refference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
+                    console.log(`WordFound is now ${WordFound}`);
+                    console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
                 }
             }
             RowMultiplier *= -1;  //Reverse the direction for when it moves down the other side
         }
         else {   //We are moving horizontally
+            if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+            console.log(`moving horizontally in the ${ColumnMultiplier} direction`)
             for (let Run = 1; Run < 3; Run++) {
-                CurrentColumn += Run * ColumnMultiplier;
-                if (Word[0] == ServerGameBoard[CurrentRow][CurrentColumn]) {  // If we found the letter
-                    return FindWordRecursion(Word.splice(1, Word.length), CurrentRow + 1, CurrentColumn + 1);
+                if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+                Column += 1 * ColumnMultiplier;
+                
+                console.log(`Accessing cell in row ${Row} column ${Column}`);
+                if(Word[0] === ServerGameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
+                    console.log(`A valid cell found on row ${Row} column ${Column}`);
+                    SelectedCells.push({"Row": Row, "Column": Column});
+                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the CelectedCells array (This is done because objects are always passed by refference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
+                    console.log(`WordFound is now ${WordFound}`);
+                    console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
                 }
             }
             ColumnMultiplier *= -1;  //Reverse the direction for when it moves right to the other side
         }
     }
-    return false;  //None of the adjacent cells have the next letter
+    return WordFound;  //returns a 0 (false) or 1 (true) back up to the calling function
 };
 
 exports.IsValidWord = async (req, res) => {
     console.log("\nGameLogicControllers.js file/IsValidWord route");
-    console.log(`Determining if the word "${req.params.Word}" is a valid word`);
-    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${req.params.Word}`);
+    let Word = req.params.Word
+    console.log(`Determining if the word "${Word}" is a valid word`);
+    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
     const dataj = await data.json();
 
-    if (dataj[0] && dataj[0].word) { //if the word is a word with a definition, then check to make sure it is on the board
-        console.log("The word has a definition, now checking to see if it on the board");
-        WordFound = FindWord(req.params.Word);  //need to debug because it is saying it can't find a word when it is on the board.
-        console.log(`Word on the board: ${WordFound}`);
+    if (dataj[0]) { //if the word has a definition, then check to make sure it is on the board
+        console.log("The word has a definition, now checking to see if it on the board\n");
+        WordFound = FindWord(Word.toUpperCase());  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.
     }
     else {
         console.log("The word doesn't have a definition");
     }
 
+    if (dataj[0]) {  //For debugging only
+        console.log(`\nWord is a Word: true`);
+        console.log(`Word on the board: ${WordFound} (0 = false and 1 = true)`);
+    }
+    else {
+        console.log(`\nWord is a Word: false`);
+    }
+    
     res.json({
-        IsWord: dataj[0].word ? true : false,
-        WordOnBoard: WordFound,
-    })
+        IsValid: dataj[0] && WordFound ? true : false,
+    });
 };
-
-// exports.StartGame = async (req, res) => {
-//     console.log("got here");
-//     console.log(req.body.start);
-//     waitingPlayers = waitingPlayers + req.body.start;
-//     // Handle start game request
-//     // Add player to waiting list
-//     if (waitingPlayers === 0) {
-//         // Send a response back to the client if the IP is found
-//         //res.send("You are already in the waiting list.");
-//     } else {
-//         // Add the IP address of the new player to the waitingPlayers array if not found
-//         // waitingPlayers.push(req.session.User);
-
-//     }
-//     console.log(waitingPlayers);
-
-//     if (waitingPlayers === 0) {
-//         // Send start game signal to both players
-//         res.send('Game started');
-//         startTimer();
-//         // Remove both players from waiting list
-//         // waitingPlayers = [];
-//     } else {
-//         res.send('Waiting for another player');
-//     }
-// };
-
-// // the timer starts when there are two plays in the room ready to play
-// function startTimer() {
-//     if (!timerRunning) {
-//         console.log('Timer started');
-//         timerRunning = true;
-//         setTimeout(() => {
-//             console.log('Timer ended');
-//             timerRunning = false;
-//         }, 3000);
-//     } else {
-//         console.log('Timer is already running');
-//     }
-// }
-
-
-
-// exports.checkTimer = async (req, res) => {
-//     if (timerRunning) {
-//         console.log('Timer is currently running');
-//         res.send('Timer is currently running');
-//     } 
-//     if (!timerRunning) {
-//         console.log('Timer is finished');
-//         res.send('Timer is finished');
-//     }
-       
-//     else {
-//         console.log('Timer is finished');
-//         if (waitingPlayers.length === 2) {
-//             res.send('Timer is finished');
-//         }
-//     }
-// };
-
-{/*
-exports.ControllerToCreate = (req, res) => {
-    AppPlayerLoginInfo.create(req.body)  //req.body contains all the data that will be used to create a new entry for the DB
-        .then((createdData) => {
-            console.log({ createdData });
-            res.json({
-                message: "Cheers!! You have successfully added your data",
-                createdData,
-            });
-        })
-        .catch((err) => {
-            console.log(`The following error occurred with creating the data:\n${err}`);
-            re.status(404).json({
-                message: "Sorry your data cannot be added",
-                error: err.message,
-            });
-        });
-};
-
-exports.ControllerToUpdate = (req, res) => {
-    AppPlayerLoginInfo.findByIdAndUpdate(req.params.id, req.body)
-        .then((dataBeingUpdated) => {
-            console.log({ dataBeingUpdated });
-            res.json({
-                message: "Cheers!! You have successfully updated the targeted data",
-                dataBeingUpdated,
-            });
-        })
-        .catch((err) => {
-            console.log(`The following error occurred for updating the data:\n${err}`);
-            res.status(404).json({
-            message: "Sorry your the targeted data cannot be updated",
-            error: err.message,
-            });
-        });
-};
-
-exports.ControllerToDelete = (req, res) => {
-    AppPlayerLoginInfo.findByIdAndRemove(req.params.id, req.body)
-        .then((deletedData) => {
-            console.log({ deletedData });
-            res.json({
-            message: "Cheers!! You have successfully deleted the targeted data",
-            deletedData,
-            });
-        })
-        .catch((err) => {
-            console.log(`The following error occurred for deleting the data:\n${err}`);
-            res.status(404).json({
-            message: "Sorry your targeted data is not there",
-            error: err.message,
-            });
-        });
-}; */}
