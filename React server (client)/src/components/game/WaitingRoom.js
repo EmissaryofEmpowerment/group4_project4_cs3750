@@ -71,27 +71,6 @@ function WaitingRoom() {
         </div>
     );
 
-
-
-
-
-
-
-
-
-    // return (
-    //     <div >
-    //         {/* <div className="WaitingRoom"> */}
-    //         {isWaiting && (
-    //             <>
-    //                 <h1>Waiting Room</h1>
-    //                 <h1>{status}</h1>
-    //                 {start !=0} (<><h2>gee</h2></>)
-    //                 <button onClick={handleStartGame}>Start Game</button>
-    //             </>
-    //         )}
-    //     </div>
-    // );
 }
 
 export default WaitingRoom;
