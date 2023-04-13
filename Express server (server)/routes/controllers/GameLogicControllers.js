@@ -97,22 +97,24 @@ function FindWordRecursion(Word, _Row, _Column) {  //Need to keep some track of 
 exports.IsValidWord = async (req, res) => {
     console.log("\nGameLogicControllers.js file/IsValidWord route");
     console.log(`Determining if the word "${req.params.Word}" is a valid word`);
-    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${req.params.Word}`);
-    const dataj = await data.json();
+    console.log("The word is " + req.params.Word + " which is:" + req.params.Word == ':VALID'? 'VALID' : 'NOT VALID');
+    req.params.Word == ":VALID" ? res.json({valid:"true"}) : res.json({valid:"false"});
+    // const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${req.params.Word}`);
+    // const dataj = await data.json();
 
-    if (dataj[0] && dataj[0].word) { //if the word is a word with a definition, then check to make sure it is on the board
-        console.log("The word has a definition, now checking to see if it on the board");
-        WordFound = FindWord(req.params.Word);  //need to debug because it is saying it can't find a word when it is on the board.
-        console.log(`Word on the board: ${WordFound}`);
-    }
-    else {
-        console.log("The word doesn't have a definition");
-    }
+    // if (dataj[0] && dataj[0].word) { //if the word is a word with a definition, then check to make sure it is on the board
+    //     console.log("The word has a definition, now checking to see if it on the board");
+    //     WordFound = FindWord(req.params.Word);  //need to debug because it is saying it can't find a word when it is on the board.
+    //     console.log(`Word on the board: ${WordFound}`);
+    // }
+    // else {
+    //     console.log("The word doesn't have a definition");
+    // }
 
-    res.json({
-        IsWord: dataj[0].word ? true : false,
-        WordOnBoard: WordFound,
-    })
+    // res.json({
+    //     IsWord: dataj[0].word ? true : false,
+    //     WordOnBoard: WordFound,
+    // })
 };
 {/*
 exports.ControllerToCreate = (req, res) => {
