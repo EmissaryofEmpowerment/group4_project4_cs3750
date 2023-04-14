@@ -29,13 +29,14 @@ exports.GenerateBoard = (req, res) => {
     // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board is constant)
-    //words that should fail bob, kayak, peep, deed
+    //words that should fail: bob, kayak, peep, deed
+    //words that should be accepted: boy, dead, pee, kay, bay
     ServerGameBoard[1] = [null, 'B', 'O', 'M', 'F', null];
     ServerGameBoard[2] = [null, 'K', 'A', 'Y', 'O', null];
     ServerGameBoard[3] = [null, 'P', 'E', 'V', 'U', null];
     ServerGameBoard[4] = [null, 'D', 'E', 'A', 'D', null];
 
-    let ClientGameBoard = JSON.parse(JSON.stringify(ServerGameBoard));  //Make a COPY (by using the JSON.parse() and JSON.stringify() functions, other wise it just creates a pointer to both degrees of the 2d array ServerGameBoard) of the ServerGameBoard to modify and send to the client
+    let ClientGameBoard = JSON.parse(JSON.stringify(ServerGameBoard));  //Make a COPY (by using the JSON.parse() and JSON.stringify() (or you can use structuredClone() for this) functions, other wise it just creates a pointer to both degrees of the 2d array ServerGameBoard) of the ServerGameBoard to modify and send to the client
     ClientGameBoard.splice(0, 1);  //Removes the first row from the Board
     ClientGameBoard.splice(ClientGameBoard.length - 1, 1);  //Removes the last row from the Board
     ClientGameBoard.forEach((Row, Index) => {
@@ -51,18 +52,30 @@ exports.GenerateBoard = (req, res) => {
     //     console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
     // });
 
+    req.session.Score = 0;  //Set the starting score for the server and client cookie
+    req.session.PreviousWords = [];  //clears the PreviousWords array for the next game
+    req.session.save(function(err) {  //saves the session and cookie for both the client and server
+        if(err) {
+            console.log(`The following error occurred in saving the session:\n\r\t${err}`);
+        }
+        else {
+            console.log("The session is now " + JSON.stringify(req.session));
+        }
+    });
+
     res.json({
         Board: ClientGameBoard,
+        Score: req.session.Score,
     });
 };
 
-//Recursion function to help with the IsValidWord route
+//This function the programmer will call if they want to find a word on the board
 function FindWord(Word) {
     // console.log("Server game board:");
     // ServerGameBoard.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
     //     console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
     // });
-    console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".\n`)
+    console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".`)
     let WordFound = false;
     for(let Row = 1; Row <= 4; Row++) {
         // console.log(`checking row ${ServerGameBoard[Row]}`);
@@ -77,6 +90,7 @@ function FindWord(Word) {
     return WordFound;  //The word was not found
 };
 
+//determines if the cell was selected from a previous step.
 function CellNotUsed(CurrentCell, PastCells) {
     // const Result = PastCells.find((SelectedCell) => {  //This finds the first instance inside the PastCells that match the contents of the CurrentCell, if it doesn't find one, the variable will be undefined.
     //     CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column
@@ -92,7 +106,7 @@ function CellNotUsed(CurrentCell, PastCells) {
 }
 
 //This function will always start at the bottom right cell connected to the letter of the first word 
-function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep some track of the cells we have gone through to prevent us from moving backwards and selecting a previously selected cell.
+function FindWordRecursion(Word, Row, Column, SelectedCells) {
     // console.log(`SelectedCells = ${JSON.stringify(SelectedCells)}`);
     let RowMultiplier = -1;
     let ColumnMultiplier = -1;
@@ -119,8 +133,8 @@ function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep s
                 if(Word[0] === ServerGameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
                     console.log(`Valid cell found on row ${Row} column ${Column}`);
                     SelectedCells.push({"Row": Row, "Column": Column});
-                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the CelectedCells array (This is done because objects are always passed by refference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
-                    console.log(`WordFound is now ${WordFound}`);
+                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
+                    // console.log(`WordFound is now ${WordFound}`);
                     console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
                 }
             }
@@ -137,8 +151,8 @@ function FindWordRecursion(Word, Row, Column, SelectedCells) {  //Need to keep s
                 if(Word[0] === ServerGameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
                     console.log(`A valid cell found on row ${Row} column ${Column}`);
                     SelectedCells.push({"Row": Row, "Column": Column});
-                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the CelectedCells array (This is done because objects are always passed by refference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
-                    console.log(`WordFound is now ${WordFound}`);
+                    WordFound |= FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
+                    // console.log(`WordFound is now ${WordFound}`);
                     console.log(`Searching for the word portion "${Word}".  Looking for character "${Word[0]}".`)
                 }
             }
@@ -155,23 +169,51 @@ exports.IsValidWord = async (req, res) => {
     const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
     const dataj = await data.json();
 
-    if (dataj[0]) { //if the word has a definition, then check to make sure it is on the board
-        console.log("The word has a definition, now checking to see if it on the board\n");
-        WordFound = FindWord(Word.toUpperCase());  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.
+    let WordFound = false;  //Default value for the variable WordFound
+    let WordNotGuessed = !req.session.PreviousWords.includes(Word)
+    if (dataj[0] && Word.length >= 3 && WordNotGuessed) { //if the word has a definition and it is at least 3 characters long, then check to make sure it is on the board
+            console.log("The word has a definition, now checking to see if it on the board\n");
+            WordFound = Boolean(FindWord(Word.toUpperCase()));  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.  This is why we have Boolean() around the return, it will convert it into a true/false condition.
     }
     else {
-        console.log("The word doesn't have a definition");
+        console.log(`\nSee the below summary for why the word "${Word}" was rejected:
+        \rHas a definition: ${dataj[0] ? true : false}
+        \rMeets minimum length: ${Word.length >= 3}
+        \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
+        \rWord on the board: ${WordFound}`);
     }
 
-    if (dataj[0]) {  //For debugging only
-        console.log(`\nWord is a Word: true`);
-        console.log(`Word on the board: ${WordFound} (0 = false and 1 = true)`);
-    }
-    else {
-        console.log(`\nWord is a Word: false`);
+
+    //the following console.log is for debugging purposes
+    // console.log(`\nHas a definition: ${dataj[0] ? true : false}
+    // \rMeets minimum length: ${Word.length >= 3}
+    // \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
+    // \rWord on the board: ${WordFound}`);
+    let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound); 
+    if(MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
+        let WordLength = Word.length;
+        //Depending on the word length, add the required points to their score
+        if(WordLength == 3) {req.session.Score += 1;}
+        if(WordLength == 4) {req.session.Score += 2;}
+        if(WordLength == 5) {req.session.Score += 4;}
+        if(WordLength == 6) {req.session.Score += 7;}
+        if(WordLength == 7) {req.session.Score += 11;}
+        if(WordLength == 8) {req.session.Score += 16;}
+        if(WordLength >= 9) {req.session.Score += 22;}
+
+        req.session.PreviousWords.push(Word);  //Add the guessed word the session so the user can't guess it again.
+        req.session.save(function(err) {  //saves the session and cookie for both the client and server
+            if(err) {
+                console.log(`The following error occurred in saving the session:\n\r\t${err}`);
+            }
+            else {
+                console.log("The session is now " + JSON.stringify(req.session));
+            }
+        });
     }
     
     res.json({
-        IsValid: dataj[0] && WordFound ? true : false,
+        IsValid: MeetsRequirements ? true : false,  //formatted this way so it will always return a true/false statement
+        NewScore: req.session.Score,
     });
 };

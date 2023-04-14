@@ -1,19 +1,21 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState, useEffect, useSyncExternalStore } from 'react';
 import axios from "../../util/axios"
 
 export function GameScreen() {
     const [PlayerWord, SetPlayerWord] = useState("");
     const [GameBoard, SetGameBoard] = useState([]);
+    const [Score, SetScore] = useState(0);
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after inital load?)
     useEffect(() => {
         axios.get("/api/GenerateBoard")
         .then((res) => {
-            // console.log(JSON.stringify(res.data.Board));
+            // console.log(JSON.stringify(res.data));
             SetGameBoard(res.data.Board);
+            SetScore(res.data.Score);
         })
         .catch((err) => {
-            console.log(`Unable to determine what to do with the player once they have guessed the word for the below reason\n${err.message}`);
+            console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
         });
     }, [])
 
@@ -31,14 +33,15 @@ export function GameScreen() {
                 SetPlayerWord(PlayerWord.slice(0, -1));  // Removes the last letter from PlayerWord.  Source https://masteringjs.io/tutorials/fundamentals/remove-last-character
             }
             else if (PressedKey === "Enter") {
-                console.log("\n" + PlayerWord + " will now be sent to the server\n");
-                axios.get("api/IsValidWord/:" + PlayerWord)
+                console.log(`"${PlayerWord}" will now be sent to the server`);
+                axios.get(`api/IsValidWord/${PlayerWord}`)
                 .then((res) => {
-                    console.log("\n" + PlayerWord + " returned this from the server:" + res.data.valid + "\n");
-                    document.getElementById("server_response").innerText = res.data.valid;
+                    console.log(`"${PlayerWord}" is a valid word:  ${res.data.IsValid}`);
+                    SetScore(res.data.NewScore);
+                    document.getElementById("server_response").innerText = res.data.IsValid;
                 })
                 .catch((err) => {
-                    console.log("\n Is valid word failed. for this reason: " + err.message + "\n");
+                    console.log(`Is valid word failed for this reason:\n${err.message}\n`);
                 });
                 SetPlayerWord("");  //Then reset the word so they can find a new word
         }}
@@ -50,6 +53,7 @@ export function GameScreen() {
     return (
         <>
             <p>WIP</p>
+            <p>Your Score: {Score}</p>
             {/* The following table is hardcoded for how, but will be made enumerable later and the supplied inline-styles is how we could highlight the word */}
             <table>
                 <tbody>
