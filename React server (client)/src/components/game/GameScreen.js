@@ -57,14 +57,18 @@ export function GameScreen() {
             {/* The following table is hardcoded for how, but will be made enumerable later and the supplied inline-styles is how we could highlight the word */}
             <table>
                 <tbody>
+                    {/* This section will parse the outer ring from the board and only render the center of the board */}
                     {GameBoard.map((Row, RowIndex) => (
+                        JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
                         <tr key={RowIndex}>
                             {Row.map((Cell, CellIndex) => (
-                                <th key={CellIndex}>{Cell}</th>
+                                    Cell !== null ?  //if it is the left or right of the game board.
+                                    <th key={CellIndex}>{Cell}</th> :
+                                    ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."
                                 //<th style={{backgroundColor:'aqua'}}>M</th>
-
                             ))}
-                        </tr>
+                        </tr> :
+                        ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."
                     ))}
                 </tbody>
             </table>
