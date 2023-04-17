@@ -10,7 +10,7 @@ import { UserContext } from "../../index";
 export function ResultScreen() {
     const [results, SetResults] = useState(false);
     const [score, SetScore] = useState(0);
-    const [foundWords, SetFoundWords] = useState(["Apple", "chicker"]);
+    const [foundWords, SetFoundWords] = useState([]);
     const IsAuth = useContext(UserContext);
 
 
@@ -36,7 +36,7 @@ export function ResultScreen() {
                             <li key={index}>{word}</li>
                         ))}
                     </ul>
-                    <h2>Would you like to play again?</h2>
+                    <h2>Go to Waiting Room to play again.</h2>
                     <Link to="/WaitingRoom">
                         <button>Go to Waiting Room</button>
                     </Link>
