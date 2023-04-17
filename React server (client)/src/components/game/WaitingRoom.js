@@ -8,7 +8,7 @@ function WaitingRoom(props) {
     const [start, setStart] = useState(false);
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-    const mode = 1;
+    const mode = 1; // tells the server to start the 3 second timer
     const IsAuth = useContext(UserContext);
 
     let intervalId;
@@ -27,18 +27,18 @@ function WaitingRoom(props) {
 
     const handleStartGame = () => {
         setStart(updateStart(start));
-        console.log(start);
+        // console.log(start);
         axios.put("/api/startGame/", { mode })
             .then((res) => {
                 setStatus(res.data);
-                console.log(res.data); // access the data property of the response object
+                // console.log(res.data); // access the data property of the response object
                 if (res.data === 'Game started') {
                     setStart(true);
                     intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
                     setTimeout(() => {
                         clearInterval(intervalId); // Stop the loop after 2 minutes
                     }, 120000);
-                    console.log("game started");
+                    // console.log("game started");
                 }
             })
             .catch((err) => {
@@ -55,19 +55,19 @@ function WaitingRoom(props) {
             .then((res) => {
                 const { Timer, elapsedTime } = res.data;
                 displayCountDown(elapsedTime);
-                console.log("message from server " + Timer);
-                console.log(elapsedTime);
+                // console.log("message from server " + Timer);
+                // console.log(elapsedTime);
                 if (Timer === false) {
                     // Handle redirect to GameScreen component
 
-                    console.log("redirecting to game");
+                    // console.log("redirecting to game");
                     navigate('/Game');
 
                     clearInterval(intervalId); // Stop the loop
-                    console.log("Timer is finished");
+                    // console.log("Timer is finished");
                 }
                 else {
-                    console.log("Timer is running");
+                    // console.log("Timer is running");
                 }
             })
             .catch((err) => {

@@ -8,7 +8,7 @@ export function GameScreen() {
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-    const mode = 2;
+    const mode = 2; // tells the server to start the 60 second timer
     let intervalId;
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after inital load?)
@@ -59,14 +59,14 @@ export function GameScreen() {
         axios.put("/api/startGame/", { mode })
             .then((res) => {
                 setStatus(res.data);
-                console.log(res.data); // access the data property of the response object
+                // console.log(res.data); // access the data property of the response object
                 if (res.data === 'Game started') {
                     // setIsWaiting(false);
                     intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
                     setTimeout(() => {
                         clearInterval(intervalId); // Stop the loop after 2 minutes
                     }, 120000);
-                    console.log("game started");
+                    // console.log("game started");
                 }
             })
             .catch((err) => {
@@ -83,19 +83,19 @@ export function GameScreen() {
             .then((res) => {
                 const { Timer, elapsedTime } = res.data;
                 displayCountDown(elapsedTime);
-                console.log("message from server " + Timer);
-                console.log(elapsedTime);
+                // console.log("message from server " + Timer);
+                // console.log(elapsedTime);
                 if (!Timer) {
                     // Handle redirect to GameScreen component
 
-                    console.log("redirecting to game");
+                    // console.log("redirecting to game");
                     navigate('/ResultScreen');
 
                     clearInterval(intervalId); // Stop the loop
-                    console.log("Timer is finished");
+                    // console.log("Timer is finished");
                 }
                 else {
-                    console.log("Timer is running");
+                    // console.log("Timer is running");
                 }
             })
             .catch((err) => {
