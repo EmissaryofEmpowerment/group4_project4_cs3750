@@ -1,36 +1,39 @@
-import React, { useState } from 'react';
-import { Route, useNavigate } from 'react-router-dom';
+import { useContext, useState } from "react";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import axios from "../../util/axios"
+import { UserContext } from "../../index";
 
-function WaitingRoom() {
+function WaitingRoom(props) {
     const [status, setStatus] = useState('');
-    const [start, setStart] = useState(-1);
+    const [start, setStart] = useState(false);
+    const [time, setTime] = useState('');
     const navigate = useNavigate();
+    const mode = 1;
+    const IsAuth = useContext(UserContext);
+
     let intervalId;
 
     function updateStart(start) {
         if (start === 0) {
-          return -1;
+            return -1;
         } else if (start === -1) {
-          return 1;
+            return 1;
         } else if (start === 1) {
-          return 0;
+            return 0;
         } else {
-          return start;
+            return start;
         }
-      }
+    }
 
     const handleStartGame = () => {
-
         setStart(updateStart(start));
         console.log(start);
-        axios.put("/api/startGame/", { start })
-            // axios.get(`http://localhost:4000/api/user/${UserName}`);
+        axios.put("/api/startGame/", { mode })
             .then((res) => {
                 setStatus(res.data);
                 console.log(res.data); // access the data property of the response object
                 if (res.data === 'Game started') {
-                    // setIsWaiting(false);
+                    setStart(true);
                     intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
                     setTimeout(() => {
                         clearInterval(intervalId); // Stop the loop after 2 minutes
@@ -43,12 +46,18 @@ function WaitingRoom() {
             });
     };
 
+    function displayCountDown(elapsedTime) {
+        setTime(3 - elapsedTime);
+    }
 
-    const checkStartGameTimer = () => {
+    function checkStartGameTimer() {
         axios.get("/api/checkTimer")
             .then((res) => {
-                console.log(res.data);
-                if (res.data === 'Timer is finished') {
+                const { Timer, elapsedTime } = res.data;
+                displayCountDown(elapsedTime);
+                console.log("message from server " + Timer);
+                console.log(elapsedTime);
+                if (Timer === false) {
                     // Handle redirect to GameScreen component
 
                     console.log("redirecting to game");
@@ -68,12 +77,19 @@ function WaitingRoom() {
 
 
     return (
-        <div>
-            <h1>Waiting Room</h1>
-            <h1>{status}</h1>
-            {start !== -1 ? <h2>You are in que</h2> : <h2>You are NOT in que</h2>}
-            <button onClick={handleStartGame}>Start Game</button>
-        </div>
+        <>
+            {!IsAuth ?
+                <Navigate to="/" replace={true} /> :
+                <>
+                    <div>
+                        <h1>Waiting Room</h1>
+                        <h1>{status}</h1>
+                        {start ? <h2>You are in que</h2> : <h2>You are NOT in que</h2>}
+                        <p>The game will start in {time}</p>
+                        <button onClick={handleStartGame}>Start Game</button>
+                    </div>
+                </>}
+        </>
     );
 
 }
