@@ -168,7 +168,7 @@ function CellNotUsed(CurrentCell, PastCells) {
 
 exports.IsValidWord = async (req, res) => {
     console.log("\nGameLogicControllers.js file/IsValidWord route");
-    let Word = req.params.Word
+    let Word = req.params.Word;
     console.log(`Determining if the word "${Word}" is a valid word`);
     const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
     const dataj = await data.json();
