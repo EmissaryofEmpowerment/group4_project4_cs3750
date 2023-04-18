@@ -175,8 +175,8 @@ exports.IsValidWord = async (req, res) => {
     let WordFound = false;  //Default value for the variable WordFound
     let WordNotGuessed = !req.session.PreviousWords.includes(Word)
     if (dataj[0] && Word.length >= 3 && WordNotGuessed) { //if the word has a definition and it is at least 3 characters long, then check to make sure it is on the board
-            console.log("The word has a definition, now checking to see if it on the board");
-            WordFound = Boolean(FindWord(Word.toUpperCase(), req.session.Board));  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.  This is why we have Boolean() around the return, it will convert it into a true/false condition.
+        console.log("The word has a definition, now checking to see if it on the board");
+        WordFound = Boolean(FindWord(Word.toUpperCase(), req.session.Board));  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.  This is why we have Boolean() around the return, it will convert it into a true/false condition.
     }
     else {
         console.log(`\nSee the below summary for why the word "${Word}" was rejected:
