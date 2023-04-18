@@ -9,6 +9,8 @@ const {
     Login,
     Logout,
     IsAuth,
+    StartGame,
+    checkTimer,
 } = require("./controllers/AccountControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
 const {
@@ -56,6 +58,10 @@ router.post("/Login", Login);
 router.post("/Logout", Logout);
 
 router.get("/IsAuth", IsAuth);
+
+router.put("/startGame", StartGame);
+
+router.get("/checkTimer", checkTimer);
 //#endregion
 
 //#region PlayerEntry routes
