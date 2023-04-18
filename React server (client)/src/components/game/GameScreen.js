@@ -50,11 +50,15 @@ export function GameScreen() {
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
 
-    function Board() {
+
+    const Board = () => {
         let ValidPaths = FindWordOnBoard(PlayerWord);
+        let ValidPathCells = [];  //Or a Set (Need to decide how to implement before choosing)
         console.log(`Valid Paths`)
-        ValidPaths.map((Path, PathIndex) => {  //for debugging/displaying the Server's game board
-            console.log(`Path option ${PathIndex}: ${JSON.stringify(Path)}`);
+        ValidPaths.map((Path, PathIndex) => {
+            console.log(`Path option ${PathIndex}: ${JSON.stringify(Path)}`);  //for debugging/displaying the valid paths to the client
+
+            //TODO:  Process the 2d array ValidPaths into a UNIQUE array of items for performance reasons (Need to compare object key values to each other).
         });
 
         return (
@@ -83,9 +87,10 @@ export function GameScreen() {
                 if(GameBoard[Row][Column] === Word[0]) {
                     console.log(`Found a "${Word[0]} at row ${Row} column ${Column}"`);
                     let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, [{Row, Column}])  //Call recursion
-                    if (Results[Results.length - 1] === true) {  //if the last element is true
-                        Results.pop()  //Pop the true boolean from the array before pushing it to our valid paths array
-                        ValidPaths.push(Results);  //push the results to the ValidPaths array
+                    if (Results) {   //if the results returned something
+                        Results.forEach((Result) => {
+                            ValidPaths.push(Result);  //push the result to the ValidPaths array
+                        });
                     }
                 }
             }
@@ -96,13 +101,16 @@ export function GameScreen() {
     function FindWordRecursion(Word, Row, Column, SelectedCells) {
         let RowMultiplier = -1;
         let ColumnMultiplier = -1;
-        let Paths = [];
+        let PathsFound = [];
         
         // base case
         if(Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
             console.log("Found all the letters for the word on the board.");
-            SelectedCells.push(true);
-            return SelectedCells;
+            let LastCell = SelectedCells.pop();  //Select the last cell from the array to modify it to tell the user where they are on the board.
+            LastCell.LastCharacter = true;
+            SelectedCells.push(LastCell);
+            PathsFound.push(SelectedCells);
+            return PathsFound;
         }
 
         //recursion
@@ -115,10 +123,13 @@ export function GameScreen() {
                     // console.log(`Accessing cell in row ${Row} column ${Column}`);
                     if(Word[0] === GameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
                         console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
-                        SelectedCells.push({Row, Column})
-                        SelectedCells = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
-                        if(SelectedCells[SelectedCells.length - 1] === true) {  //if the last element is true
-                            return SelectedCells;
+                        SelectedCells.push({Row, Column})  //Push the current cell to the SelectedCells array before starting a new recursion
+                        let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
+                        SelectedCells.pop();  //Pop the push from before so we can continue to search without it being added the PathsFound array during the next recursion of this function.
+                        if(Results) {  //if the results returned something
+                            Results.forEach((Result) => {
+                                PathsFound.push(Result);
+                            });
                         }
                     }
                 }
@@ -132,17 +143,20 @@ export function GameScreen() {
                     // console.log(`Accessing cell in row ${Row} column ${Column}`);
                     if(Word[0] === GameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
                         console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
-                        SelectedCells.push({Row, Column})
-                        SelectedCells = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
-                        if(SelectedCells[SelectedCells.length - 1] === true) {  //if the last element is true
-                            return SelectedCells;
+                        SelectedCells.push({Row, Column})  //Push the current cell to the SelectedCells array before starting a new recursion
+                        let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
+                        SelectedCells.pop();  //Pop the push from before so we can continue to search without it being added the PathsFound array during the next recursion of this function.
+                        if(Results) {  //if the results returned something
+                            Results.forEach((Result) => {
+                                PathsFound.push(Result);
+                            });
                         }
                     }
                 }
                 ColumnMultiplier *= -1;  //Reverse the direction for when it moves right to the other side
             }
         }
-        return SelectedCells;
+        return PathsFound;
     }
 
     function CellNotUsed(CurrentCell, PastCells) {
