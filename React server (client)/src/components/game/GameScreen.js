@@ -41,8 +41,8 @@ export function GameScreen() {
                 console.log("\n" + PlayerWord + " will now be sent to the server\n");
                 axios.get("api/IsValidWord/" + PlayerWord)
                     .then((res) => {
-                        console.log("\n" + PlayerWord + " returned this from the server:" + res.data.valid + "\n");
-                        document.getElementById("server_response").innerText = res.data.valid;
+                        console.log(`\n ${PlayerWord} returned this from the server: ${res.data.IsValid}\n`);
+                        document.getElementById("server_response").innerText = JSON.stringify(res.data);
                     })
                     .catch((err) => {
                         console.log("\n Is valid word failed. for this reason: " + err.message + "\n");
@@ -128,8 +128,8 @@ export function GameScreen() {
             <p>
                 Current Word<br />
                 {PlayerWord}
-            </p>
-            <p id="server_response"></p>
+            </p>This is the response from the Server:
+            <p id="server_response"> </p>
         </>
     );
 }

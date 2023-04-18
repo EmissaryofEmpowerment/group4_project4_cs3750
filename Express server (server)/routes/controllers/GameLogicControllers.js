@@ -194,6 +194,8 @@ exports.IsValidWord = async (req, res) => {
     // \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
     // \rWord on the board: ${WordFound}`);
     let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound); 
+    console.log(`\nThe value of MeetsRequirements ${MeetsRequirements}`);
+    req.session.IsValid = MeetsRequirements;
     if(MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
         let WordLength = Word.length;
         //Depending on the word length, add the required points to their score
@@ -216,6 +218,8 @@ exports.IsValidWord = async (req, res) => {
         });
     }
     
+    console.log(`It is ${MeetsRequirements} that "${Word}" is valid.`);
+    console.log(`\n This is what will be sent back to the React Server ${JSON.stringify(req.session)}`);
     res.json({
         IsValid: MeetsRequirements ? true : false,  //formatted this way so it will always return a true/false statement
         NewScore: req.session.Score,

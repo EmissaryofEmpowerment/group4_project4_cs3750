@@ -255,7 +255,7 @@ function startTimer(mode) {
 exports.checkTimer = async (req, res) => {
     if (timerRunning) {
         const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
-        console.log(`Timer is currently running. Elapsed time: ${elapsedTime} s`);
+       // console.log(`Timer is currently running. Elapsed time: ${elapsedTime} s`);
         res.send({ Timer: true, elapsedTime });
     } else if (!timerRunning && waitingPlayers === 0) {
         console.log('Timer has finished');
