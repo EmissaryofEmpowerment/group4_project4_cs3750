@@ -9,14 +9,14 @@ export function GameScreen() {
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
         axios.get("/api/GenerateBoard")
-        .then((res) => {
-            // console.log(JSON.stringify(res.data));
-            SetGameBoard(res.data.Board);
-            SetScore(res.data.Score);
-        })
-        .catch((err) => {
-            console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
-        });
+            .then((res) => {
+                // console.log(JSON.stringify(res.data));
+                SetGameBoard(res.data.Board);
+                SetScore(res.data.Score);
+            })
+            .catch((err) => {
+                console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
+            });
     }, [])
 
     //Run this useEffect every time the PlayerWord changes
@@ -35,16 +35,17 @@ export function GameScreen() {
             else if (PressedKey === "Enter") {
                 console.log(`"${PlayerWord}" will now be sent to the server`);
                 axios.get(`api/IsValidWord/${PlayerWord}`)
-                .then((res) => {
-                    console.log(`"${PlayerWord}" is a valid word:  ${res.data.IsValid}`);
-                    SetScore(res.data.NewScore);
-                    document.getElementById("server_response").innerText = res.data.IsValid;
-                })
-                .catch((err) => {
-                    console.log(`Is valid word failed for this reason:\n${err.message}\n`);
-                });
+                    .then((res) => {
+                        console.log(`"${PlayerWord}" is a valid word:  ${res.data.IsValid}`);
+                        SetScore(res.data.NewScore);
+                        document.getElementById("server_response").innerText = res.data.IsValid;
+                    })
+                    .catch((err) => {
+                        console.log(`Is valid word failed for this reason:\n${err.message}\n`);
+                    });
                 SetPlayerWord("");  //Then reset the word so they can find a new word
-        }}
+            }
+        }
         window.addEventListener('keydown', handleKeyDown);
 
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
@@ -53,26 +54,66 @@ export function GameScreen() {
 
     const Board = () => {
         let ValidPaths = FindWordOnBoard(PlayerWord);
-        let ValidPathCells = [];  //Or a Set (Need to decide how to implement before choosing)
-        console.log(`Valid Paths`)
+        let ValidPathCells = [];
+
+        // This section is for debugging by displaying the valid paths that was found
+        console.log(`Valid Paths:`)
         ValidPaths.map((Path, PathIndex) => {
             console.log(`Path option ${PathIndex}: ${JSON.stringify(Path)}`);  //for debugging/displaying the valid paths to the client
-
-            //TODO:  Process the 2d array ValidPaths into a UNIQUE array of items for performance reasons (Need to compare object key values to each other).
         });
+
+        //This will add the last cell to be selected for the word supplied.  This is because we will be making it a different color to tell the client where they are on the board and it will make it so it is always added because of the following for loop logic.
+        for (let PathIndex = 0; PathIndex < ValidPaths.length; PathIndex++) {
+            // console.log(`Processing path ${JSON.stringify(ValidPaths[PathIndex])}`);
+            let LastCellIndex = ValidPaths[PathIndex].length - 1;
+            if (!ValidPathCells.some((Entry) => { return JSON.stringify(Entry) === JSON.stringify(ValidPaths[PathIndex][LastCellIndex]) })) {  //Learned about this method from these two sites https://stackoverflow.com/questions/45895129/how-to-check-if-a-specific-object-already-exists-in-an-array-before-adding-it and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+                ValidPathCells.push(ValidPaths[PathIndex][LastCellIndex]);
+            }
+        }
+
+        //If the cell hasn't been added to the ValidPathCells array (Row and Column combination), then add it to the array.
+        for (let PathIndex = 0; PathIndex < ValidPaths.length; PathIndex++) {
+            // console.log(`Processing path ${JSON.stringify(ValidPaths[PathIndex])}`);
+            for (let CellIndex = 0; CellIndex < ValidPaths[PathIndex].length; CellIndex++) {
+                // console.log(`Processing cell "${JSON.stringify(ValidPaths[PathIndex][CellIndex])}" from above path`);
+                if (!ValidPathCells.some((Entry) => { return Entry.Row === ValidPaths[PathIndex][CellIndex].Row && Entry.Column === ValidPaths[PathIndex][CellIndex].Column })) {  //Learned about this method from these two sites https://stackoverflow.com/questions/45895129/how-to-check-if-a-specific-object-already-exists-in-an-array-before-adding-it and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+                    ValidPathCells.push(ValidPaths[PathIndex][CellIndex]);
+                }
+            }
+        }
+
+        console.log(`Valid Paths Cells:
+        \r${JSON.stringify(ValidPathCells)}`);
+
+        const MakeCell = (CellContent, Location, CellIndex) => {
+            let CellEntry = ValidPathCells.find(Entry => Entry.Row === Location.Row && Entry.Column === Location.Column);
+            if (!CellEntry) {  //It is a cell that is not selected
+                return <th key={CellIndex}>{CellContent}</th>
+            }
+            else if (CellEntry.LastCharacter) {  //It is a cell that is the last character in the word
+                return <th key={CellIndex} style={{backgroundColor:'aqua'}}>{CellContent}</th>
+            }
+            else if (true) {  //The word is a valid word (to be implemented)
+                return <th key={CellIndex} style={{backgroundColor:'green'}}>{CellContent}</th>
+            }
+            else {  //The word is not a valid word
+                return <th key={CellIndex} style={{backgroundColor:'red'}}>{CellContent}</th>
+            }
+        }
 
         return (
             GameBoard.map((Row, RowIndex) => (
                 JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
-                <tr key={RowIndex}>
-                    {Row.map((Cell, CellIndex) => (
-                            Cell !== null ?  //if it is the left or right of the game board.
-                            <th key={CellIndex}>{Cell}</th> :
-                            ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-                        //<th style={{backgroundColor:'aqua'}}>M</th>
-                    ))}
-                </tr> :
-                ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
+                    <tr key={RowIndex}>
+                        {Row.map((Cell, CellIndex) => (
+                            Cell !== null ? //if it is NOT the left or right of the game board.
+                                MakeCell(Cell, { Row: RowIndex, Column: CellIndex }, CellIndex)
+                                :
+                                ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
+                            //<th style={{backgroundColor:'aqua'}}>M</th>
+                        ))}
+                    </tr> :
+                    ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
             ))
         );
     }
@@ -82,11 +123,11 @@ export function GameScreen() {
         \r\tWord: ${Word}`);
         // console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".`)
         let ValidPaths = []
-        for(let Row = 1; Row <= GameBoard.length - 2; Row++) {
-            for(let Column = 1; Column <= GameBoard[Row].length - 2; Column++) {
-                if(GameBoard[Row][Column] === Word[0]) {
+        for (let Row = 1; Row <= GameBoard.length - 2; Row++) {
+            for (let Column = 1; Column <= GameBoard[Row].length - 2; Column++) {
+                if (GameBoard[Row][Column] === Word[0]) {
                     console.log(`Found a "${Word[0]} at row ${Row} column ${Column}"`);
-                    let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, [{Row, Column}])  //Call recursion
+                    let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, [{ Row, Column }])  //Call recursion
                     if (Results) {   //if the results returned something
                         Results.forEach((Result) => {
                             ValidPaths.push(Result);  //push the result to the ValidPaths array
@@ -102,9 +143,9 @@ export function GameScreen() {
         let RowMultiplier = -1;
         let ColumnMultiplier = -1;
         let PathsFound = [];
-        
+
         // base case
-        if(Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+        if (Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
             console.log("Found all the letters for the word on the board.");
             let LastCell = SelectedCells.pop();  //Select the last cell from the array to modify it to tell the user where they are on the board.
             LastCell.LastCharacter = true;
@@ -119,14 +160,14 @@ export function GameScreen() {
                 // console.log(`Moving vertically in the ${RowMultiplier} direction`)  //For debugging
                 for (let Run = 1; Run < 3; Run++) {
                     Row += 1 * RowMultiplier;
-                    
+
                     // console.log(`Accessing cell in row ${Row} column ${Column}`);
-                    if(Word[0] === GameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
+                    if (Word[0] === GameBoard[Row][Column] && CellNotUsed({ "Row": Row, "Column": Column }, SelectedCells)) {
                         console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
-                        SelectedCells.push({Row, Column})  //Push the current cell to the SelectedCells array before starting a new recursion
+                        SelectedCells.push({ Row, Column })  //Push the current cell to the SelectedCells array before starting a new recursion
                         let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                         SelectedCells.pop();  //Pop the push from before so we can continue to search without it being added the PathsFound array during the next recursion of this function.
-                        if(Results) {  //if the results returned something
+                        if (Results) {  //if the results returned something
                             Results.forEach((Result) => {
                                 PathsFound.push(Result);
                             });
@@ -139,14 +180,14 @@ export function GameScreen() {
                 // console.log(`Moving horizontally in the ${ColumnMultiplier} direction`)
                 for (let Run = 1; Run < 3; Run++) {
                     Column += 1 * ColumnMultiplier;
-                    
+
                     // console.log(`Accessing cell in row ${Row} column ${Column}`);
-                    if(Word[0] === GameBoard[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
+                    if (Word[0] === GameBoard[Row][Column] && CellNotUsed({ "Row": Row, "Column": Column }, SelectedCells)) {
                         console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
-                        SelectedCells.push({Row, Column})  //Push the current cell to the SelectedCells array before starting a new recursion
+                        SelectedCells.push({ Row, Column })  //Push the current cell to the SelectedCells array before starting a new recursion
                         let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                         SelectedCells.pop();  //Pop the push from before so we can continue to search without it being added the PathsFound array during the next recursion of this function.
-                        if(Results) {  //if the results returned something
+                        if (Results) {  //if the results returned something
                             Results.forEach((Result) => {
                                 PathsFound.push(Result);
                             });
@@ -172,7 +213,7 @@ export function GameScreen() {
         // \rResult for CellNotUsed() = ${NotUsed ? false : true}`);
         return NotUsed ? false : true;
     }
-    
+
 
     return (
         <>
