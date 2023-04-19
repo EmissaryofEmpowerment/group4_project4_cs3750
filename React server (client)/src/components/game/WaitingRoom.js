@@ -28,7 +28,7 @@ function WaitingRoom(props) {
     const handleStartGame = () => {
         setStart(updateStart(start));
         // console.log(start);
-        axios.put("/api/startGame/", { mode })
+        axios.put("/api/StartGame/", { mode })
             .then((res) => {
                 setStatus(res.data);
                 // console.log(res.data); // access the data property of the response object
@@ -51,7 +51,7 @@ function WaitingRoom(props) {
     }
 
     function checkStartGameTimer() {
-        axios.get("/api/checkTimer")
+        axios.get("/api/CheckTimer")
             .then((res) => {
                 const { Timer, elapsedTime } = res.data;
                 displayCountDown(elapsedTime);
