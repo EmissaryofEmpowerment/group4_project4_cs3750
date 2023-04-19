@@ -220,3 +220,26 @@ exports.IsValidWord = async (req, res) => {
         NewScore: req.session.Score,
     });
 };
+
+//used to determine if the supplied word is a word.
+exports.IsGameWord = async (req, res) => {
+    console.log("\nGameLogicControllers.js file/IsWord route");
+    let Word = req.params.Word
+    console.log(`Determining if the word "${Word}" is a word`);
+    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
+    const dataj = await data.json();
+
+    console.log(`The word has a definition: ${dataj[0] ? true : false}
+    \rThe word meets minimum length: ${Word.length >= 3}`);
+
+    res.json({
+        IsWord: dataj[0] && Word.length >= 3 ? true : false,  //formatted this way so it will always return a true/false statement instead of the data inside the dataj[0]
+    });
+}
+
+//This has to be included because otherwise, we will get a 404 error for the route IsWord.
+exports.IsGameWordEmpty = (req, res) => {
+    res.json({
+        IsWord: false,
+    })
+}

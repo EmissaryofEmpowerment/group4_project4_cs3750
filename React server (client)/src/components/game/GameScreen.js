@@ -3,6 +3,7 @@ import axios from "../../util/axios"
 
 export function GameScreen() {
     const [PlayerWord, SetPlayerWord] = useState("");
+    const [PlayerWordIsWord, SetPlayerWordIsWord] = useState(false);
     const [GameBoard, SetGameBoard] = useState([]);
     const [Score, SetScore] = useState(0);
 
@@ -27,9 +28,11 @@ export function GameScreen() {
             const PressedKey = e.key;  // Extract the key and keycode of the pressed key
 
             if (PressedKey.match(/^[A-Z]$/i)) {  // If the key pressed is A-Z, case insensitive
+                CheckWordIsGameWord(PlayerWord.concat(PressedKey.toUpperCase()));
                 SetPlayerWord(PlayerWord.concat(PressedKey.toUpperCase()));  // Adds the letter to the PlayerWord
             }
             else if (PressedKey === "Backspace") {
+                CheckWordIsGameWord(PlayerWord.slice(0, -1));
                 SetPlayerWord(PlayerWord.slice(0, -1));  // Removes the last letter from PlayerWord.  Source https://masteringjs.io/tutorials/fundamentals/remove-last-character
             }
             else if (PressedKey === "Enter") {
@@ -50,6 +53,18 @@ export function GameScreen() {
 
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
+
+    //Function for common code used in the above useEffect
+    function CheckWordIsGameWord(Word) {
+        axios.get(`api/IsGameWord/${Word}`)
+        .then((res) => {
+            console.log(`"${Word}" is a valid game word:  ${res.data.IsWord}`);
+            SetPlayerWordIsWord(res.data.IsWord);
+        })
+        .catch((err) => {
+            console.log(`Is word failed for this reason:\n${err.message}\n`);
+        });
+    }
 
 
     const Board = () => {
@@ -90,13 +105,16 @@ export function GameScreen() {
             if (!CellEntry) {  //It is a cell that is not selected
                 return <th key={CellIndex}>{CellContent}</th>
             }
-            else if (CellEntry.LastCharacter) {  //It is a cell that is the last character in the word
-                return <th key={CellIndex} style={{backgroundColor:'aqua'}}>{CellContent}</th>
+            else if (CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is the last character in the word and the word is a word
+                return <th key={CellIndex} style={{backgroundColor:'lightgreen'}}>{CellContent}</th>
             }
-            else if (true) {  //The word is a valid word (to be implemented)
+            else if (!CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is not last character in the word and the word is a word
                 return <th key={CellIndex} style={{backgroundColor:'green'}}>{CellContent}</th>
             }
-            else {  //The word is not a valid word
+            else if (CellEntry.LastCharacter && !PlayerWordIsWord) {  //It is a cell that is the last character in the word however, the word is not a word
+                return <th key={CellIndex} style={{backgroundColor:'lightsalmon'}}>{CellContent}</th>
+            }
+            else {  //It is a cell that is not last character in the word and the word is not a word
                 return <th key={CellIndex} style={{backgroundColor:'red'}}>{CellContent}</th>
             }
         }
@@ -119,8 +137,8 @@ export function GameScreen() {
     }
 
     function FindWordOnBoard(Word) {
-        console.log(`Launching starter for the recursion FindWordRecursion() with the argument:
-        \r\tWord: ${Word}`);
+        // console.log(`Launching starter for the recursion FindWordRecursion() with the argument:
+        // \r\tWord: ${Word}`);
         // console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".`)
         let ValidPaths = []
         for (let Row = 1; Row <= GameBoard.length - 2; Row++) {
@@ -146,7 +164,7 @@ export function GameScreen() {
 
         // base case
         if (Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
-            console.log("Found all the letters for the word on the board.");
+            // console.log("Found all the letters for the word on the board.");
             let LastCell = SelectedCells.pop();  //Select the last cell from the array to modify it to tell the user where they are on the board.
             LastCell.LastCharacter = true;
             SelectedCells.push(LastCell);
@@ -163,7 +181,7 @@ export function GameScreen() {
 
                     // console.log(`Accessing cell in row ${Row} column ${Column}`);
                     if (Word[0] === GameBoard[Row][Column] && CellNotUsed({ "Row": Row, "Column": Column }, SelectedCells)) {
-                        console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
+                        // console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
                         SelectedCells.push({ Row, Column })  //Push the current cell to the SelectedCells array before starting a new recursion
                         let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                         SelectedCells.pop();  //Pop the push from before so we can continue to search without it being added the PathsFound array during the next recursion of this function.
@@ -183,7 +201,7 @@ export function GameScreen() {
 
                     // console.log(`Accessing cell in row ${Row} column ${Column}`);
                     if (Word[0] === GameBoard[Row][Column] && CellNotUsed({ "Row": Row, "Column": Column }, SelectedCells)) {
-                        console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
+                        // console.log(`Found a "${Word[0]}" found on row ${Row} column ${Column}`);
                         SelectedCells.push({ Row, Column })  //Push the current cell to the SelectedCells array before starting a new recursion
                         let Results = FindWordRecursion(Word.slice(1, Word.length), Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                         SelectedCells.pop();  //Pop the push from before so we can continue to search without it being added the PathsFound array during the next recursion of this function.
