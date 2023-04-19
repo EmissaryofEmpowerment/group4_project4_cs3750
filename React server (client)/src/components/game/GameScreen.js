@@ -1,11 +1,17 @@
 import { React, useState, useEffect } from 'react';
 import axios from "../../util/axios"
+import { Link, useNavigate, Navigate } from "react-router-dom";
 
 export function GameScreen() {
     const [PlayerWord, SetPlayerWord] = useState("");
     const [PlayerWordIsWord, SetPlayerWordIsWord] = useState(false);
     const [GameBoard, SetGameBoard] = useState([]);
     const [Score, SetScore] = useState(0);
+    const [status, setStatus] = useState('');
+    const [time, setTime] = useState('');
+    const navigate = useNavigate();
+    const mode = 2; // tells the server to start the 60 second timer
+    let intervalId;
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
@@ -14,6 +20,7 @@ export function GameScreen() {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
+                handleStartGame();  // start the 60 sec timer on the server
             })
             .catch((err) => {
                 console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
@@ -54,6 +61,55 @@ export function GameScreen() {
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
 
+    const handleStartGame = () => {
+        axios.put("/api/startGame/", { mode })
+            .then((res) => {
+                setStatus(res.data);
+                // console.log(res.data); // access the data property of the response object
+                if (res.data === 'Game started') {
+                    // setIsWaiting(false);
+                    intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
+                    setTimeout(() => {
+                        clearInterval(intervalId); // Stop the loop after 2 minutes
+                    }, 120000);
+                    // console.log("game started");
+                }
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
+    };
+
+    function displayCountDown(elapsedTime) {
+        setTime(60 - elapsedTime);
+    }
+
+    const checkStartGameTimer = () => {
+        axios.get("/api/checkTimer")
+            .then((res) => {
+                const { Timer, elapsedTime } = res.data;
+                displayCountDown(elapsedTime);
+                // console.log("message from server " + Timer);
+                // console.log(elapsedTime);
+                if (!Timer) {
+                    // Handle redirect to GameScreen component
+
+                    // console.log("redirecting to game");
+                    navigate('/ResultScreen');
+
+                    clearInterval(intervalId); // Stop the loop
+                    // console.log("Timer is finished");
+                }
+                else {
+                    // console.log("Timer is running");
+                }
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
+    };
+
+
     //Function for common code used in the above useEffect
     function CheckWordIsGameWord(Word) {
         axios.get(`api/IsGameWord/${Word}`)
@@ -64,76 +120,6 @@ export function GameScreen() {
         .catch((err) => {
             console.log(`Is word failed for this reason:\n${err.message}\n`);
         });
-    }
-
-
-    const Board = () => {
-        let ValidPaths = FindWordOnBoard(PlayerWord);
-        let ValidPathCells = [];
-
-        // This section is for debugging by displaying the valid paths that was found
-        console.log(`Valid Paths:`)
-        ValidPaths.map((Path, PathIndex) => {
-            console.log(`Path option ${PathIndex}: ${JSON.stringify(Path)}`);  //for debugging/displaying the valid paths to the client
-        });
-
-        //This will add the last cell to be selected for the word supplied.  This is because we will be making it a different color to tell the client where they are on the board and it will make it so it is always added because of the following for loop logic.
-        for (let PathIndex = 0; PathIndex < ValidPaths.length; PathIndex++) {
-            // console.log(`Processing path ${JSON.stringify(ValidPaths[PathIndex])}`);
-            let LastCellIndex = ValidPaths[PathIndex].length - 1;
-            if (!ValidPathCells.some((Entry) => { return JSON.stringify(Entry) === JSON.stringify(ValidPaths[PathIndex][LastCellIndex]) })) {  //Learned about this method from these two sites https://stackoverflow.com/questions/45895129/how-to-check-if-a-specific-object-already-exists-in-an-array-before-adding-it and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-                ValidPathCells.push(ValidPaths[PathIndex][LastCellIndex]);
-            }
-        }
-
-        //If the cell hasn't been added to the ValidPathCells array (Row and Column combination), then add it to the array.
-        for (let PathIndex = 0; PathIndex < ValidPaths.length; PathIndex++) {
-            // console.log(`Processing path ${JSON.stringify(ValidPaths[PathIndex])}`);
-            for (let CellIndex = 0; CellIndex < ValidPaths[PathIndex].length; CellIndex++) {
-                // console.log(`Processing cell "${JSON.stringify(ValidPaths[PathIndex][CellIndex])}" from above path`);
-                if (!ValidPathCells.some((Entry) => { return Entry.Row === ValidPaths[PathIndex][CellIndex].Row && Entry.Column === ValidPaths[PathIndex][CellIndex].Column })) {  //Learned about this method from these two sites https://stackoverflow.com/questions/45895129/how-to-check-if-a-specific-object-already-exists-in-an-array-before-adding-it and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-                    ValidPathCells.push(ValidPaths[PathIndex][CellIndex]);
-                }
-            }
-        }
-
-        console.log(`Valid Paths Cells:
-        \r${JSON.stringify(ValidPathCells)}`);
-
-        const MakeCell = (CellContent, Location, CellIndex) => {
-            let CellEntry = ValidPathCells.find(Entry => Entry.Row === Location.Row && Entry.Column === Location.Column);
-            if (!CellEntry) {  //It is a cell that is not selected
-                return <th key={CellIndex}>{CellContent}</th>
-            }
-            else if (CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is the last character in the word and the word is a word
-                return <th key={CellIndex} style={{backgroundColor:'lightgreen'}}>{CellContent}</th>
-            }
-            else if (!CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is not last character in the word and the word is a word
-                return <th key={CellIndex} style={{backgroundColor:'green'}}>{CellContent}</th>
-            }
-            else if (CellEntry.LastCharacter && !PlayerWordIsWord) {  //It is a cell that is the last character in the word however, the word is not a word
-                return <th key={CellIndex} style={{backgroundColor:'lightsalmon'}}>{CellContent}</th>
-            }
-            else {  //It is a cell that is not last character in the word and the word is not a word
-                return <th key={CellIndex} style={{backgroundColor:'red'}}>{CellContent}</th>
-            }
-        }
-
-        return (
-            GameBoard.map((Row, RowIndex) => (
-                JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
-                    <tr key={RowIndex}>
-                        {Row.map((Cell, CellIndex) => (
-                            Cell !== null ? //if it is NOT the left or right of the game board.
-                                MakeCell(Cell, { Row: RowIndex, Column: CellIndex }, CellIndex)
-                                :
-                                ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-                            //<th style={{backgroundColor:'aqua'}}>M</th>
-                        ))}
-                    </tr> :
-                    ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-            ))
-        );
     }
 
     function FindWordOnBoard(Word) {
@@ -232,27 +218,82 @@ export function GameScreen() {
         return NotUsed ? false : true;
     }
 
+    const Board = () => {
+        let ValidPaths = FindWordOnBoard(PlayerWord);
+        let ValidPathCells = [];
+
+        // This section is for debugging by displaying the valid paths that was found
+        console.log(`Valid Paths:`)
+        ValidPaths.map((Path, PathIndex) => {
+            console.log(`Path option ${PathIndex}: ${JSON.stringify(Path)}`);  //for debugging/displaying the valid paths to the client
+        });
+
+        //This will add the last cell to be selected for the word supplied.  This is because we will be making it a different color to tell the client where they are on the board and it will make it so it is always added because of the following for loop logic.
+        for (let PathIndex = 0; PathIndex < ValidPaths.length; PathIndex++) {
+            // console.log(`Processing path ${JSON.stringify(ValidPaths[PathIndex])}`);
+            let LastCellIndex = ValidPaths[PathIndex].length - 1;
+            if (!ValidPathCells.some((Entry) => { return JSON.stringify(Entry) === JSON.stringify(ValidPaths[PathIndex][LastCellIndex]) })) {  //Learned about this method from these two sites https://stackoverflow.com/questions/45895129/how-to-check-if-a-specific-object-already-exists-in-an-array-before-adding-it and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+                ValidPathCells.push(ValidPaths[PathIndex][LastCellIndex]);
+            }
+        }
+
+        //If the cell hasn't been added to the ValidPathCells array (Row and Column combination), then add it to the array.
+        for (let PathIndex = 0; PathIndex < ValidPaths.length; PathIndex++) {
+            // console.log(`Processing path ${JSON.stringify(ValidPaths[PathIndex])}`);
+            for (let CellIndex = 0; CellIndex < ValidPaths[PathIndex].length; CellIndex++) {
+                // console.log(`Processing cell "${JSON.stringify(ValidPaths[PathIndex][CellIndex])}" from above path`);
+                if (!ValidPathCells.some((Entry) => { return Entry.Row === ValidPaths[PathIndex][CellIndex].Row && Entry.Column === ValidPaths[PathIndex][CellIndex].Column })) {  //Learned about this method from these two sites https://stackoverflow.com/questions/45895129/how-to-check-if-a-specific-object-already-exists-in-an-array-before-adding-it and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+                    ValidPathCells.push(ValidPaths[PathIndex][CellIndex]);
+                }
+            }
+        }
+
+        console.log(`Valid Paths Cells:
+        \r${JSON.stringify(ValidPathCells)}`);
+
+        const MakeCell = (CellContent, Location, CellIndex) => {
+            let CellEntry = ValidPathCells.find(Entry => Entry.Row === Location.Row && Entry.Column === Location.Column);
+            if (!CellEntry) {  //It is a cell that is not selected
+                return <th key={CellIndex}>{CellContent}</th>
+            }
+            else if (CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is the last character in the word and the word is a word
+                return <th key={CellIndex} style={{backgroundColor:'lightgreen'}}>{CellContent}</th>
+            }
+            else if (!CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is not last character in the word and the word is a word
+                return <th key={CellIndex} style={{backgroundColor:'green'}}>{CellContent}</th>
+            }
+            else if (CellEntry.LastCharacter && !PlayerWordIsWord) {  //It is a cell that is the last character in the word however, the word is not a word
+                return <th key={CellIndex} style={{backgroundColor:'lightsalmon'}}>{CellContent}</th>
+            }
+            else {  //It is a cell that is not last character in the word and the word is not a word
+                return <th key={CellIndex} style={{backgroundColor:'red'}}>{CellContent}</th>
+            }
+        }
+
+        return (
+            GameBoard.map((Row, RowIndex) => (
+                JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
+                    <tr key={RowIndex}>
+                        {Row.map((Cell, CellIndex) => (
+                            Cell !== null ? //if it is NOT the left or right of the game board.
+                                MakeCell(Cell, { Row: RowIndex, Column: CellIndex }, CellIndex)
+                                :
+                                ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
+                            //<th style={{backgroundColor:'aqua'}}>M</th>
+                        ))}
+                    </tr> :
+                    ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
+            ))
+        );
+    }
 
     return (
         <>
             <p>WIP</p>
-            <p>Your Score: {Score}</p>
-            {/* The following table is hardcoded for how, but will be made enumerable later and the supplied inline-styles is how we could highlight the word */}
+            <h1>Time Left: {time}</h1>
+            <h1>Your Score: {Score}</h1>
             <table>
                 <tbody>
-                    {/* This section will parse the outer ring from the board and only render the center of the board
-                    {GameBoard.map((Row, RowIndex) => (
-                        JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
-                        <tr key={RowIndex}>
-                            {Row.map((Cell, CellIndex) => (
-                                    Cell !== null ?  //if it is the left or right of the game board.
-                                    <th key={CellIndex}>{Cell}</th> :
-                                    ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-                                //<th style={{backgroundColor:'aqua'}}>M</th>
-                            ))}
-                        </tr> :
-                        ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-                    ))} */}
                     <Board />
                 </tbody>
             </table>
@@ -260,6 +301,7 @@ export function GameScreen() {
                 Current Word<br />
                 {PlayerWord}
             </p>
+            This is the response from the Server:
             <p id="server_response"></p>
         </>
     );

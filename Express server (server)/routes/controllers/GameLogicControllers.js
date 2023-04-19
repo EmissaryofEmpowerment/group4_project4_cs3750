@@ -1,7 +1,6 @@
 //make your routes here
-//let Board;  //Make a global variable to store the game board for the server (removed because we save it to a session variable)
-
-const { json } = require("body-parser");
+let waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
+let timerRunning = false;
 
 exports.GenerateBoard = (req, res) => {
     console.log("\nGameLogicControllers.js file/GenerateBoard route");
@@ -31,7 +30,7 @@ exports.GenerateBoard = (req, res) => {
     // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
-    //words that should fail: bob, kayak, peep, deed
+    //words that should fail: bob, kayak, peep, deed, boy, bay
     //words that should be accepted: boy, dead, pee, kay, bay, deep
     Board[1] = [null, 'B', 'O', 'M', 'F', null];
     Board[2] = [null, 'K', 'A', 'Y', 'O', null];
@@ -242,4 +241,77 @@ exports.IsGameWordEmpty = (req, res) => {
     res.json({
         IsWord: false,
     })
+}
+
+// start game from waiting room
+// mode 1 = (3) second game start timer 
+// mode 2 = (60) second game start timer 
+// the timer starts when there are two plays in the room ready to play
+exports.StartGame = async (req, res) => {
+    console.log(req.body.mode);
+    if ( req.session.Inline === true) {
+        waitingPlayers--; // the user is either added or removed from que
+        req.session.Inline = false;
+    }
+    console.log("waitingPlayers " + waitingPlayers);
+    if (req.body.mode === 2) {
+        console.log("the mode is: " + req.body.mode);
+        res.send('Game started');
+        StartTimer(2);
+    }
+    else if (waitingPlayers === 0 && req.body.mode === 1) {
+        console.log("the mode is: " + req.body.mode);
+        // Send start game signal to both players
+        res.send('Game started');
+        StartTimer(1);
+    } else {
+        res.send('Waiting for another player');
+    }
+};
+
+// mode 1 = (3) second game start timer 
+// mode 2 = (60) second game start timer 
+// the timer starts when there are two plays in the room ready to play
+function StartTimer(mode) {
+    if (mode === 1) {
+        if (!timerRunning) {
+            console.log('3 sec Timer started');
+            timerRunning = true;
+            timerValue = Date.now();
+            setTimeout(() => {
+                console.log('Timer ended');
+                timerRunning = false;
+                timerValue = null;
+            }, 3000);
+        } else {
+            console.log('Timer is already running');
+        }
+    } else if (mode === 2) {
+        if (!timerRunning) {
+            console.log('60 sec Timer started');
+            timerRunning = true;
+            timerValue = Date.now();
+            setTimeout(() => {
+                console.log('Timer ended');
+                timerRunning = false;
+                timerValue = null;
+            }, 60000);
+        } else {
+            console.log('Timer is already running');
+        }
+    }
+}
+
+exports.CheckTimer = async (req, res) => {
+    if (timerRunning) {
+        const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
+       // console.log(`Timer is currently running. Elapsed time: ${elapsedTime} s`);
+        res.send({ Timer: true, elapsedTime });
+    } else if (!timerRunning && waitingPlayers === 0) {
+        console.log('Timer has finished');
+        res.send({ Timer: false, elapsedTime: null });
+    } else {
+        console.log('Game not ready');
+        res.send({ message: 'Game not ready', elapsedTime: null });
+    }
 }
