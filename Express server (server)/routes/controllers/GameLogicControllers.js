@@ -2,6 +2,7 @@
 let waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
 let timerRunning = false;
 
+
 exports.GenerateBoard = (req, res) => {
     console.log("\nGameLogicControllers.js file/GenerateBoard route");
     let Board = [
@@ -30,7 +31,7 @@ exports.GenerateBoard = (req, res) => {
     // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
-    //words that should fail: bob, kayak, peep, deed, boy, bay, may
+    //words that should fail: bob, kayak, peep, deed, boy, bay
     //words that should be accepted: boy, dead, pee, kay, bay, deep
     Board[1] = [null, 'B', 'O', 'M', 'F', null];
     Board[2] = [null, 'K', 'A', 'Y', 'O', null];
@@ -166,7 +167,7 @@ function CellNotUsed(CurrentCell, PastCells) {
 
 exports.IsValidWord = async (req, res) => {
     console.log("\nGameLogicControllers.js file/IsValidWord route");
-    let Word = req.params.Word
+    let Word = req.params.Word;
     console.log(`Determining if the word "${Word}" is a valid word`);
     const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
     const dataj = await data.json();
@@ -192,6 +193,8 @@ exports.IsValidWord = async (req, res) => {
     // \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
     // \rWord on the board: ${WordFound}`);
     let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound); 
+    console.log(`\nThe value of MeetsRequirements ${MeetsRequirements}`);
+    req.session.IsValid = MeetsRequirements;
     if(MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
         let WordLength = Word.length;
         //Depending on the word length, add the required points to their score
@@ -214,6 +217,8 @@ exports.IsValidWord = async (req, res) => {
         });
     }
     
+    console.log(`It is ${MeetsRequirements} that "${Word}" is valid.`);
+    console.log(`\n This is what will be sent back to the React Server ${JSON.stringify(req.session)}`);
     res.json({
         IsValid: MeetsRequirements ? true : false,  //formatted this way so it will always return a true/false statement
         NewScore: req.session.Score,
