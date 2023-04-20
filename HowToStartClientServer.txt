@@ -1,5 +1,0 @@
-To start either the client or server, all you need to do is to run the command at the end of this file.
-The nessary changes to the package.json file for both the client and server have been made for this to work.
-You need to be in the directory "React server (Client)" or "Express server (server)" for you to start the respective service. 
-
-npm start
