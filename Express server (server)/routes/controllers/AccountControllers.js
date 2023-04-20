@@ -163,12 +163,14 @@ exports.IsAuth = (req, res) => {
     console.log(`Current Session:\n\t${JSON.stringify(req.session)}`);
     if (req.session.IsAuth) {
         console.log("User logged in");
+        waitingPlayers++;
         res.json({
             IsAuth: true
         });
     }
     else {
         console.log("User not logged in");
+        waitingPlayers--;
         res.json({
             IsAuth: false
         });

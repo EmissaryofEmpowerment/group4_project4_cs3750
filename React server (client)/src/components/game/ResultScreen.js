@@ -5,6 +5,7 @@ import { UserContext } from "../../index";
 //TODO: either pass the score and results (won/loss) in a prop, or API call
 //      set the values
 
+// make API call to increment waiting players and set req.session.Inline = true;
 
 
 export function ResultScreen() {

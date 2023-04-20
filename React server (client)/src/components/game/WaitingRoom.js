@@ -13,21 +13,8 @@ function WaitingRoom(props) {
 
     let intervalId;
 
-    function updateStart(start) {
-        if (start === 0) {
-            return -1;
-        } else if (start === -1) {
-            return 1;
-        } else if (start === 1) {
-            return 0;
-        } else {
-            return start;
-        }
-    }
-
     const handleStartGame = () => {
-        setStart(updateStart(start));
-        // console.log(start);
+         // console.log(start);
         axios.put("/api/StartGame/", { mode })
             .then((res) => {
                 setStatus(res.data);

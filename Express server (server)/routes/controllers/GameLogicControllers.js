@@ -1,5 +1,5 @@
 //make your routes here
-let waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
+global.waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
 let timerRunning = false;
 
 
@@ -277,6 +277,7 @@ exports.StartGame = async (req, res) => {
 // mode 1 = (3) second game start timer 
 // mode 2 = (60) second game start timer 
 // the timer starts when there are two plays in the room ready to play
+// move the timers to the client 
 function StartTimer(mode) {
     if (mode === 1) {
         if (!timerRunning) {
@@ -307,6 +308,7 @@ function StartTimer(mode) {
     }
 }
 
+// won't need this funtion once the timer is on the client.
 exports.CheckTimer = async (req, res) => {
     if (timerRunning) {
         const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
