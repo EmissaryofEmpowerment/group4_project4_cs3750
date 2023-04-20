@@ -1,0 +1,4 @@
+PORT=3001
+MONGO_DB_URL="URL"
+COOKIE_NAME="CookieName"
+SESS_SECRET="SomeString"

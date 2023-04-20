@@ -1,0 +1,15 @@
+Changes needed to complete the client:
+//1.  (Optional) Inside the ./public/index.html file, you need to change text inside the <title></title> tags.
+//2.  Add your components to the ./src/components folder, import the required ones into the index.js file, and define the route for each one.
+//3.  When you first start the client, you will be prompted with the following text:
+    "
+    ? We're unable to detect target browsers.
+    Would you like to add the defaults to your package.json? Â» (Y/n)
+    "
+    You want to say yes to the prompt.  This will add the the "browserslist" section to the package.json file.
+//4.  You can remove the default import and route for the "Template" object inside inside the file located at this path "./client/src/index.js".
+    You can also remove the file located at this path "./client/src/components/Template.js".
+    These three things are just to show that the client is working a intended, they are not needed for it to work.
+Important information:
+1.  If you need to use axios, use the file at this location "./src/util/axios.js" and import it into your project using "import axios from "Path to the axios.js file";"
+    This will make it so instead of calling this "http://localhost:3001/api/someroute" for every axios call, you can just use "/api/someroute" and have it do the same thing.

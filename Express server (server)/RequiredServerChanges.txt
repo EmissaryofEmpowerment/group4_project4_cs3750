@@ -1,0 +1,11 @@
+Changes needed to complete the server:
+//1.  Inside the ./models/models.js file, you need to define the schema for the models that the server will used and rename everything inside a pair of <>.
+//2.  Inside the ./routes/controllers/controllers.js file, you need to rename every instance of <AppRenameMe> to what you changed it to inside the same file as in changes 1 on the last line.
+//    You can add/remove/modify these route controllers to fit the needs of your project.  What is supplied is just used to show how to do CRUD operations on a model.
+//3.  Inside the ./routes/routes.js, you need to do two things:
+//    a.  If you add more controllers inside the same file as in changes 2, you need to add those controllers inside the const {} defined near the top of the file.
+//    b.  You need to define the URL's that the routes will use by replacing every instance of <URL> with the URL the route will use.
+//    What is supplied in this file is simply a framework/template for you to expand on.  You can add/remove/modify these routes to fit the needs for your project.
+//4.  Inside your .env file, you need to do one of to things:
+//    a.  Replace "<DB name or leave blank for "test" DB>" with the name of the DB the server will use, it will create it if it doesn't exist.
+//    b.  Or just remove it entirely and have the server use the "test" DB.
