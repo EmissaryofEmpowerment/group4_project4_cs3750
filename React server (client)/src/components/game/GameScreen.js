@@ -97,6 +97,7 @@ export function GameScreen() {
                     // Handle redirect to GameScreen component
 
                     // console.log("redirecting to game");
+                    sessionStorage.setItem("player1", document.getElementById("round_score").innerText);
                     navigate('/ResultScreen');
 
                     clearInterval(intervalId); // Stop the loop
@@ -293,7 +294,7 @@ export function GameScreen() {
         <>
             <p>WIP</p>
             <h1>Time Left: {time}</h1>
-            <h1>Your Score: {Score}</h1>
+            <h1>Your Score: <div id="round_score">{Score}</div></h1>
             <table>
                 <tbody>
                     <Board />
