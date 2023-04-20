@@ -186,7 +186,6 @@ exports.IsValidWord = async (req, res) => {
         \rWord on the board: ${WordFound}`);
     }
 
-
     //the following console.log is for debugging purposes
     // console.log(`\nHas a definition: ${dataj[0] ? true : false}
     // \rMeets minimum length: ${Word.length >= 3}
@@ -222,6 +221,7 @@ exports.IsValidWord = async (req, res) => {
     res.json({
         IsValid: MeetsRequirements ? true : false,  //formatted this way so it will always return a true/false statement
         NewScore: req.session.Score,
+        GuessedWords: req.session.PreviousWords,
     });
 };
 

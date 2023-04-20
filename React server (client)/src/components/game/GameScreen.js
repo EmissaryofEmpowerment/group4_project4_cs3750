@@ -6,6 +6,7 @@ export function GameScreen() {
     const [PlayerWord, SetPlayerWord] = useState("");
     const [PlayerWordIsWord, SetPlayerWordIsWord] = useState(false);
     const [GameBoard, SetGameBoard] = useState([]);
+    const [GuessedWords, SetGuessedWords] = useState([]);
     const [Score, SetScore] = useState(0);
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
@@ -20,7 +21,7 @@ export function GameScreen() {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
-                handleStartGame();  // start the 60 sec timer on the server
+                handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
             })
             .catch((err) => {
                 console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
@@ -48,6 +49,7 @@ export function GameScreen() {
                     .then((res) => {
                         console.log(`"${PlayerWord}" is a valid word:  ${res.data.IsValid}`);
                         SetScore(res.data.NewScore);
+                        SetGuessedWords(res.data.GuessedWords);
                         document.getElementById("server_response").innerText = res.data.IsValid;
                     })
                     .catch((err) => {
@@ -303,6 +305,10 @@ export function GameScreen() {
             </p>
             This is the response from the Server:
             <p id="server_response"></p>
+            <p>Previous Guessed Words:</p>
+            <ul>
+                {GuessedWords.map(Word => <li key={Word}>{Word}</li>)}
+            </ul>
         </>
     );
 }
