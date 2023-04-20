@@ -36,7 +36,7 @@ export function NewUserForm(props) {
                             // alert("Account creation successful");
                             props.SetIsAuth(res.data.IsAuth);  //store the logged in state to the index.js state variable.
                             // setTimeout(() => {  //waits a half a second before redirecting
-                                Navigate("/Game");
+                                Navigate("/WaitingRoom");
                             // }, 250);
                         })
                         .catch((err) => {
