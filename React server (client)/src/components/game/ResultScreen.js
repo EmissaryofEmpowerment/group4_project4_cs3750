@@ -20,6 +20,10 @@ export function ResultScreen() {
         SetResults(gResults);
     };
 
+    //Contruct()
+    let skore = sessionStorage.getItem("player1");
+   // SetScore(skore);
+
     return (
         <>
         <p> TODO: once we handle the passing of the words found, score and result, we also need to put the player back inline
@@ -29,7 +33,7 @@ export function ResultScreen() {
                 <Navigate to="/" replace={true} /> :
                 <>
                     <h1>{results ? `Congrats! you won!` : `Sorry you lost. `}</h1>
-                    <h2>Your score is: {score}</h2>
+                    <h2>Your score is: {skore}</h2>
                     <h2>Words you found:</h2>
                     <ul>
                         {foundWords.map((word, index) => (
