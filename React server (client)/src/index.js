@@ -40,7 +40,6 @@ function App() {
         FetchUserAuth();
     }, []);
 
-
     return (
         <>
             <UserContext.Provider value={IsAuth}>
