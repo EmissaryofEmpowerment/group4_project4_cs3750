@@ -30,7 +30,7 @@ exports.GenerateBoard = (req, res) => {
     // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
-    //words that should fail: bob, kayak, peep, deed, boy, bay
+    //words that should fail: bob, kayak, peep, deed, boy, bay, may
     //words that should be accepted: boy, dead, pee, kay, bay, deep
     Board[1] = [null, 'B', 'O', 'M', 'F', null];
     Board[2] = [null, 'K', 'A', 'Y', 'O', null];
