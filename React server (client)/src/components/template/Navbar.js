@@ -7,7 +7,12 @@ const NavBar = () => {
 
     return (
         <nav>
-            {IsAuth ? <Link to="/Logout"><button>Log out</button></Link> : <></>}
+            {IsAuth ?
+                <Link to="/Logout" className="btn">
+                    Log out
+                </Link>
+            :
+                <></>}
         </nav>
     );
 };

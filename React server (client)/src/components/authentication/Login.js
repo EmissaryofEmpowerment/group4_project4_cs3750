@@ -62,7 +62,7 @@ export function LoginForm(props) {
         <>
             {IsAuth ? 
             <Navigate to="/WaitingRoom" replace={true} /> :
-            <>
+            <div className="container">
                 <h1>Welcome to Grid Word Finder!</h1>
                 <h2>Login or Create a New Account</h2>
                 <br />
@@ -89,7 +89,7 @@ export function LoginForm(props) {
                 <Link to="/NewUser">
                     Create New Account
                 </Link>
-            </>}
+            </div>}
         </>
     );
 }

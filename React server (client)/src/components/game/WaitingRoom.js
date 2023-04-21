@@ -66,16 +66,16 @@ function WaitingRoom(props) {
     return (
         <>
             {!IsAuth ?
-                <Navigate to="/" replace={true} /> :
-                <>
-                    <div>
-                        <h1>Waiting Room</h1>
-                        <h1>{status}</h1>
-                        {start ? <h2>You are in the queue</h2> : <h2>You are NOT in the queue</h2>}
-                        <p>The game will start in {time}</p>
-                        <button onClick={handleStartGame}>Start Game</button>
-                    </div>
-                </>}
+            <Navigate to="/" replace={true} />
+            :
+            <div className="container">
+                <h1>Waiting Room</h1>
+                <h1>{status}</h1>
+                {start ? <h2>You are in the queue</h2> : <h2>You are NOT in the queue</h2>}
+                <p>The game will start in {time}</p>
+                <button onClick={handleStartGame}>Start Game</button>
+            </div>
+            }
         </>
     );
 

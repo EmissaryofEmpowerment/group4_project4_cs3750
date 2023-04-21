@@ -59,7 +59,7 @@ export function NewUserForm(props) {
 
     return (
         <>
-            <div className="Center">
+            <div className="container">
                 <form action="/" onSubmit={HandleSubmit}>
                     <label htmlFor="Username">Username:  </label>
                     <input

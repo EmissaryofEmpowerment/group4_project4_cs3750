@@ -26,28 +26,28 @@ export function ResultScreen() {
    // SetScore(skore);
 
     return (
-        <>
-        <p> TODO: once we handle the passing of the words found, score and result, we also need to put the player back inline
-            by req.session.Inline = false and waitingPlayers++;
-        </p>
+        <div className="container">
+            <p> TODO: once we handle the passing of the words found, score and result, we also need to put the player back inline
+                by req.session.Inline = false and waitingPlayers++;
+            </p>
             {!IsAuth ?
-                <Navigate to="/" replace={true} /> :
-                <>
-                    <h1>{results ? `Congrats! you won!` : `Sorry you lost. `}</h1>
-                    <h2>Your score is: {skore}</h2>
-                    <h2>Words you found:</h2>
-                    <ul>
-                        {foundWords.map((word, index) => (
-                            <li key={index}>{word}</li>
-                        ))}
-                    </ul>
-                    <h2>Go to Waiting Room to play again.</h2>
-                    <Link to="/WaitingRoom">
-                        <button>Go to Waiting Room</button>
-                    </Link>
+            <Navigate to="/" replace={true} />
+            :<>
+                <h1>{results ? `Congrats! you won!` : `Sorry you lost. `}</h1>
+                <h2>Your score is: {skore}</h2>
+                <h2>Words you found:</h2>
+                <ul>
+                    {foundWords.map((word, index) => (
+                        <li key={index}>{word}</li>
+                    ))}
+                </ul>
+                <h2>Go to Waiting Room to play again.</h2>
+                <Link to="/WaitingRoom">
+                    <button>Go to Waiting Room</button>
+                </Link>
 
-                </>}
-        </>
+            </>}
+        </div>
     );
 }
 export default ResultScreen;

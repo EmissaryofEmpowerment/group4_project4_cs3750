@@ -21,7 +21,7 @@ export function GameScreen() {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
-                handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
+                //handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
             })
             .catch((err) => {
                 console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
@@ -116,13 +116,13 @@ export function GameScreen() {
     //Function for common code used in the above useEffect
     function CheckWordIsGameWord(Word) {
         axios.get(`api/IsGameWord/${Word}`)
-        .then((res) => {
-            console.log(`"${Word}" is a valid game word:  ${res.data.IsWord}`);
-            SetPlayerWordIsWord(res.data.IsWord);
-        })
-        .catch((err) => {
-            console.log(`Is word failed for this reason:\n${err.message}\n`);
-        });
+            .then((res) => {
+                console.log(`"${Word}" is a valid game word:  ${res.data.IsWord}`);
+                SetPlayerWordIsWord(res.data.IsWord);
+            })
+            .catch((err) => {
+                console.log(`Is word failed for this reason:\n${err.message}\n`);
+            });
     }
 
     function FindWordOnBoard(Word) {
@@ -260,57 +260,98 @@ export function GameScreen() {
                 return <th key={CellIndex}>{CellContent}</th>
             }
             else if (CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is the last character in the word and the word is a word
-                return <th key={CellIndex} style={{backgroundColor:'lightgreen'}}>{CellContent}</th>
+                return <th key={CellIndex} className='ValidLastCell'>{CellContent}</th>
             }
             else if (!CellEntry.LastCharacter && PlayerWordIsWord) {  //It is a cell that is not last character in the word and the word is a word
-                return <th key={CellIndex} style={{backgroundColor:'green'}}>{CellContent}</th>
+                return <th key={CellIndex} className='ValidCell'>{CellContent}</th>
             }
             else if (CellEntry.LastCharacter && !PlayerWordIsWord) {  //It is a cell that is the last character in the word however, the word is not a word
-                return <th key={CellIndex} style={{backgroundColor:'lightsalmon'}}>{CellContent}</th>
+                return <th key={CellIndex} className='InvalidLastCell'>{CellContent}</th>
             }
             else {  //It is a cell that is not last character in the word and the word is not a word
-                return <th key={CellIndex} style={{backgroundColor:'red'}}>{CellContent}</th>
+                return <th key={CellIndex} className='InvalidCell'>{CellContent}</th>
             }
         }
 
         return (
-            GameBoard.map((Row, RowIndex) => (
-                JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
-                    <tr key={RowIndex}>
-                        {Row.map((Cell, CellIndex) => (
-                            Cell !== null ? //if it is NOT the left or right of the game board.
-                                MakeCell(Cell, { Row: RowIndex, Column: CellIndex }, CellIndex)
-                                :
-                                ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-                            //<th style={{backgroundColor:'aqua'}}>M</th>
-                        ))}
-                    </tr> :
-                    ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-            ))
+            <table>
+                <tbody>
+                    {GameBoard.map((Row, RowIndex) => (
+                        JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
+                            <tr key={RowIndex}>
+                                {Row.map((Cell, CellIndex) => (
+                                    Cell !== null ? //if it is NOT the left or right of the game board.
+                                        MakeCell(Cell, { Row: RowIndex, Column: CellIndex }, CellIndex) :
+                                        ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
+                                    //<th style={{backgroundColor:'aqua'}}>M</th>
+                                ))}
+                            </tr> :
+                            ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
+    const PlayerScores = () => {  //WIP by Braxton  
+        let temporary = [{Username: 'name1', Score: 3}, {Username: 'name2', Score: 7}, {Username: 'name3', Score: 1}, {Username: 'name4', Score: 9}]
+
+        let SortResults = temporary.sort((Item1, Item2) => {  //Sorts the array by descending score.  Source https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+            return Item2.Score - Item1.Score;
+        });
+
+        return (
+            <table>
+                <tbody>
+                    {SortResults.map((Entry, EntryIndex) => (
+                        <tr key={Entry.Username}>
+                        {Object.keys(Entry).forEach((key) => {
+                            <td key={Entry[key]}>{Entry[key]}</td>  //currently not inserting data into cell.  https://masteringjs.io/tutorials/fundamentals/foreach-key-value
+                        })}
+                        </tr> 
+                    ))}
+                </tbody>
+            </table>
         );
     }
 
     return (
-        <>
-            <p>WIP</p>
-            <h1>Time Left: {time}</h1>
-            <h1>Your Score: <div id="round_score">{Score}</div></h1>
-            <table>
-                <tbody>
+        <div className='container'>
+            <div className='row'>
+                <div className='col-md-6'>
+                    <h1>Your Score: <span id="round_score">{Score}</span></h1>
+                </div>
+                <div className='col-md-6'>
+                    <h1>Time Left: {time}</h1>
+                </div>
+            </div>
+            <div className='row'>
+                <div className='col-md-6'>
                     <Board />
-                </tbody>
-            </table>
-            <p>
-                Current Word<br />
-                {PlayerWord}
-            </p>
-            This is the response from the Server:
-            <p id="server_response"></p>
-            <p>Previous Guessed Words:</p>
-            <ul>
-                {GuessedWords.map(Word => <li key={Word}>{Word}</li>)}
-            </ul>
-        </>
+                    <br />
+                    <p>
+                        Current Word:
+                        <br />
+                        {PlayerWord}
+                    </p>
+                </div>
+                <div className='col-md-6'>
+                    <p>
+                        This is the response from the Server (For debugging):  <span id="server_response"></span>
+                    </p>
+                    <p>
+                        Player Scores:
+                    </p>
+                    <PlayerScores />{/* TODO: some table to contain the players playing and their scores */}
+                    <p>
+                        Previous Guessed Words:
+                    </p>
+                    <ul>
+                        {GuessedWords.map(Word => <li key={Word}>{Word}</li>)}
+                    </ul>
+                </div>
+            </div>
+        </div>
     );
 }
 

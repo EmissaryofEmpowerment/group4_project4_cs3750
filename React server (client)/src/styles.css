@@ -8,4 +8,21 @@ table, th, td {
 th, td {
     width: 1.5em;
     height: 1.5em;
+    text-align: center;
+}
+
+.ValidLastCell {
+    background-color: lightgreen;
+}
+
+.InvalidLastCell {
+    background-color: salmon;
+}
+
+.ValidCell {
+    background-color: green;
+}
+
+.InvalidCell {
+    background-color: red;
 }
