@@ -8,11 +8,13 @@ const NavBar = () => {
     return (
         <nav>
             {IsAuth ?
+            <div className="d-flex justify-content-end">
                 <Link to="/Logout" className="btn">
-                    Log out
+                    <button>Log out</button>
                 </Link>
+            </div>
             :
-                <></>}
+            <></>}
         </nav>
     );
 };

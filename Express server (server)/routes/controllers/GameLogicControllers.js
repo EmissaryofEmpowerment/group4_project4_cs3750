@@ -2,6 +2,29 @@
 global.waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
 let timerRunning = false;
 
+// Will contain an array of objects corresponding with the players in the game (WIP, for right now it will be hardcoded)
+let PlayersGameInfo = [
+    {
+        Username: 'Baron',
+        Score: 3,
+        GuessedWords: ['boy', 'dead', 'pee']
+    },
+    {
+        Username: 'Taz',
+        Score: 7,
+        GuessedWords: ['deep', 'bay', 'boy']
+    },
+    {
+        Username: 'Luke',
+        Score: 1,
+        GuessedWords: ['deed', 'kay']
+    },
+    {
+        Username: 'Evan',
+        Score: 9,
+        GuessedWords: ['kay']
+    }
+];
 
 exports.GenerateBoard = (req, res) => {
     console.log("\nGameLogicControllers.js file/GenerateBoard route");
@@ -32,7 +55,7 @@ exports.GenerateBoard = (req, res) => {
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
     //words that should fail: bob, kayak, peep, deed, boy, bay
-    //words that should be accepted: boy, dead, pee, kay, bay, deep
+    //words that should be accepted: boy, dead, pee, kay, bay, deep, pea
     Board[1] = [null, 'B', 'O', 'M', 'F', null];
     Board[2] = [null, 'K', 'A', 'Y', 'O', null];
     Board[3] = [null, 'P', 'E', 'V', 'U', null];
@@ -321,4 +344,26 @@ exports.CheckTimer = async (req, res) => {
         console.log('Game not ready');
         res.send({ message: 'Game not ready', elapsedTime: null });
     }
+}
+
+exports.FetchPlayersScores = (req, res) => {
+    let CurrentDate = new Date();
+    console.log(`\nGameLogicControllers.js file/FetchPlayersScores route at time ${CurrentDate.getHours() + ":" + CurrentDate.getMinutes() + ":" + CurrentDate.getSeconds()}`);
+    
+    PlayersScores = []
+    PlayersGameInfo.forEach((Entry) => {
+        PlayersScores.push({ Username: Entry.Username, Score: Entry.Score });
+    });
+
+    res.json({
+        PlayersScores,
+    });
+}
+
+exports.FetchPlayersGameInfo = (req, res) => {
+    console.log(`\nGameLogicControllers.js file/FetchPlayersInfo route`);
+
+    res.json({
+        PlayersGameInfo,
+    })
 }

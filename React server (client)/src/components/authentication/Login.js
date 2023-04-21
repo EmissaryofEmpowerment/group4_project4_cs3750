@@ -87,7 +87,7 @@ export function LoginForm(props) {
                     <button type="submit" className='MarginTop8'>Login</button>
                 </form>
                 <Link to="/NewUser">
-                    Create New Account
+                    <button>Create New Account</button>
                 </Link>
             </div>}
         </>

@@ -8,6 +8,7 @@ export function GameScreen() {
     const [GameBoard, SetGameBoard] = useState([]);
     const [GuessedWords, SetGuessedWords] = useState([]);
     const [Score, SetScore] = useState(0);
+    const [PlayersScores, SetPlayersScores] = useState([]);
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const navigate = useNavigate();
@@ -16,17 +17,32 @@ export function GameScreen() {
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
+        UpdatePlayerScores();
+
         axios.get("/api/GenerateBoard")
             .then((res) => {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
                 //handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
+                setInterval(function() {
+                    UpdatePlayerScores();
+                }, 5000);  //Every 5 seconds run this function to see if the scores changed on the server             
             })
             .catch((err) => {
                 console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
             });
     }, [])
+
+    function UpdatePlayerScores() {
+        axios.get('api/FetchPlayersScores')
+        .then((res) => {
+            SetPlayersScores(res.data.PlayersScores)
+        })
+        .catch((err) => {
+            console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
+        });
+    }
 
     //Run this useEffect every time the PlayerWord changes
     useEffect(() => {
@@ -62,6 +78,7 @@ export function GameScreen() {
 
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
+
 
     const handleStartGame = () => {
         axios.put("/api/StartGame/", { mode })
@@ -274,7 +291,7 @@ export function GameScreen() {
         }
 
         return (
-            <table>
+            <table id='GameBoard'>
                 <tbody>
                     {GameBoard.map((Row, RowIndex) => (
                         JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
@@ -283,7 +300,6 @@ export function GameScreen() {
                                     Cell !== null ? //if it is NOT the left or right of the game board.
                                         MakeCell(Cell, { Row: RowIndex, Column: CellIndex }, CellIndex) :
                                         ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
-                                    //<th style={{backgroundColor:'aqua'}}>M</th>
                                 ))}
                             </tr> :
                             ''  //this is '' instead of <></> because it prevents the error that says that "Each child in a list should have a unique "key" prop."  Source https://stackoverflow.com/questions/15009194/assign-only-if-condition-is-true-in-ternary-operator-in-javascript
@@ -293,22 +309,28 @@ export function GameScreen() {
         );
     }
 
-    const PlayerScores = () => {  //WIP by Braxton  
-        let temporary = [{Username: 'name1', Score: 3}, {Username: 'name2', Score: 7}, {Username: 'name3', Score: 1}, {Username: 'name4', Score: 9}]
-
-        let SortResults = temporary.sort((Item1, Item2) => {  //Sorts the array by descending score.  Source https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+    const PlayerScores = () => {
+        let SortResults = PlayersScores.sort((Item1, Item2) => {  //Sorts the array by descending score.  Source https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
             return Item2.Score - Item1.Score;
         });
 
         return (
-            <table>
+            <table id='PlayerScores'>
+                <caption>
+                    Score Board
+                </caption>
                 <tbody>
+                    <tr>
+                        <td>Player Name</td>
+                        <td>Player Score</td>
+                    </tr>
                     {SortResults.map((Entry, EntryIndex) => (
-                        <tr key={Entry.Username}>
-                        {Object.keys(Entry).forEach((key) => {
-                            <td key={Entry[key]}>{Entry[key]}</td>  //currently not inserting data into cell.  https://masteringjs.io/tutorials/fundamentals/foreach-key-value
-                        })}
-                        </tr> 
+                        <tr key={EntryIndex}>
+                            {Object.keys(Entry).map((Key, KeyIndex) => (  //Source to iterate over an object's key to render the <td> found here https://bobbyhadz.com/blog/react-loop-through-object
+                                // console.log(`Adding td with a key of "${KeyIndex}" with contents "${Entry[Key]}"`)
+                                <td key={KeyIndex}>{Entry[Key]}</td>
+                            ))}
+                        </tr>
                     ))}
                 </tbody>
             </table>
@@ -330,26 +352,26 @@ export function GameScreen() {
                     <Board />
                     <br />
                     <p>
-                        Current Word:
-                        <br />
-                        {PlayerWord}
+                        Current Word: {PlayerWord}
                     </p>
                 </div>
                 <div className='col-md-6'>
                     <p>
                         This is the response from the Server (For debugging):  <span id="server_response"></span>
                     </p>
-                    <p>
-                        Player Scores:
-                    </p>
-                    <PlayerScores />{/* TODO: some table to contain the players playing and their scores */}
-                    <p>
-                        Previous Guessed Words:
-                    </p>
-                    <ul>
-                        {GuessedWords.map(Word => <li key={Word}>{Word}</li>)}
-                    </ul>
+                    <PlayerScores />{/* WIP: Need to link this to the server so it retrieves the data on load and updates like every 2-3 seconds through an axios call probably */}
                 </div>
+            </div>
+            <div className='row'>
+                <p>
+                    Guessed Words:
+                </p>
+            </div>
+            <div className='row'>
+                {/* <ul className='list-group'>
+                    {GuessedWords.map(Word => <li key={Word} className='list-group-item'>{Word}</li>)}
+                </ul> */}
+                {GuessedWords.map(Word => <div key={Word} className='col-md-2'>{Word}</div>)}  {/* The col-md-2 will make it so that there will be 6 words per line before it overflows onto a new line */}
             </div>
         </div>
     );

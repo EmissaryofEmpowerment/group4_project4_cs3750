@@ -25,6 +25,8 @@ const {
     IsGameWordEmpty,
     StartGame,
     CheckTimer,
+    FetchPlayersScores,
+    FetchPlayersGameInfo,
 } = require("./controllers/GameLogicControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
 
@@ -77,6 +79,10 @@ router.get("/IsGameWord", IsGameWordEmpty);
 router.put("/StartGame", StartGame);
 
 router.get("/CheckTimer", CheckTimer);
+
+router.get('/FetchPlayersScores', FetchPlayersScores)
+
+router.get('/FetchPlayersGameInfo', FetchPlayersGameInfo);
 //#endregion
 
 module.exports = router;  //export the constant "router" (which contains the get, post, put, and delete http responses) so that we can make use of it outside this file

@@ -1,13 +1,18 @@
 /* Insert your CSS styles here */
 table, th, td {
-    border-collapse: collapse;
     border: 1px solid black;
-    font-size: 1.5em;
+    border-collapse: collapse;
 }
 
-th, td {
+table#GameBoard th, table.GameBoard td {
+    font-size: 3em;
     width: 1.5em;
     height: 1.5em;
+    text-align: center;
+}
+
+table#PlayerScores > caption {  /* targets tables with the id of "PlayerScores" and the direct child of table tag caption  */
+    caption-side: top;
     text-align: center;
 }
 
