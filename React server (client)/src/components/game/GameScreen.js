@@ -24,7 +24,7 @@ export function GameScreen() {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
-                handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
+                // handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
                 setInterval(function() {
                     UpdatePlayerScores();
                 }, 5000);  //Every 5 seconds run this function to see if the scores changed on the server             
@@ -91,7 +91,7 @@ export function GameScreen() {
             console.log('Timer ended');
             clearInterval(intervalId); // Clear the interval
             navigate('/ResultScreen');
-        }, 6000);
+        }, 60000);
     }
 
     //Function for common code used in the above useEffect

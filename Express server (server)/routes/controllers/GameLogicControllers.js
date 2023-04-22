@@ -290,57 +290,16 @@ exports.StartGame = async (req, res) => {
         req.session.Inline = false;
     }
     console.log("waitingPlayers " + waitingPlayers);
-    if (req.body.mode === 2) {
-        console.log("the mode is: " + req.body.mode);
-        res.send('Game started');
-        StartTimer(2);
-    }
-    else if (waitingPlayers === 0) {
+ if (waitingPlayers === 0) {
     // else if (waitingPlayers === 0 && req.body.mode === 1) {
         console.log("the mode is: " + req.body.mode);
         console.log("Game ready")
         // Send start game signal to both players
         res.send('Game ready');
-        // StartTimer(1);
     } else {
         res.send('Waiting for another player');
     }
 };
-
-// mode 1 = (3) second game start timer 
-// mode 2 = (60) second game start timer 
-// the timer starts when there are two plays in the room ready to play
-// move the timers to the client 
-function StartTimer(mode) {
-    if (mode === 1) {
-        if (!timerRunning) {
-            console.log('3 sec Timer started');
-            timerRunning = true;
-            timerValue = Date.now();
-            setTimeout(() => {
-                console.log('Timer ended');
-                timerRunning = false;
-                timerValue = null;
-            }, 3000);
-        } else {
-            console.log('Timer is already running');
-        }
-    } else if (mode === 2) {
-        if (!timerRunning) {
-            console.log('60 sec Timer started');
-            timerRunning = true;
-            timerValue = Date.now();
-            setTimeout(() => {
-                console.log('Timer ended');
-                timerRunning = false;
-                timerValue = null;
-            }, 60000);
-        } else {
-            console.log('Timer is already running');
-        }
-    }
-}
-
 
 exports.Restart = async (req, res) => {
     console.log("req.session.Inline");
@@ -349,8 +308,9 @@ exports.Restart = async (req, res) => {
         waitingPlayers++;
         res.send("Restarting Game");
     }
-
-        // res.send("Restart error");
+else{
+        res.send("Restart error");
+    }    
     
 }
 
