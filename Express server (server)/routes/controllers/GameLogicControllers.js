@@ -1,6 +1,6 @@
 //make your routes here
 global.waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
-let timerRunning = false;
+
 
 // Will contain an array of objects corresponding with the players in the game (WIP, for right now it will be hardcoded)
 let PlayersGameInfo = [

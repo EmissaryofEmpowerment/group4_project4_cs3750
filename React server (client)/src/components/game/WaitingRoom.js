@@ -13,37 +13,50 @@ function WaitingRoom(props) {
 
     let intervalId;
 
+
     const handleStartGame = () => {
         setStart(true);
         intervalId = setInterval(checkReady, 500); // Run checkStartGameTimer every 500ms
+
+        // When the user switches away from the current tab, clear the interval
+        window.addEventListener('blur', () => {
+            clearInterval(intervalId);
+        });
+
+        // When the user returns to the tab, start the interval again
+        // window.addEventListener('focus', () => {
+        //     intervalId = setInterval(checkReady, 500);
+        // });
+
         setTimeout(() => {
             clearInterval(intervalId); // Stop the loop after 2 minutes
         }, 120000);
     };
 
+
     const checkReady = () => {
-    axios.put("/api/StartGame/", { mode })
-    .then((res) => {
-        setStatus(res.data);
-        if (res.data === 'Game ready') {
-            setStart(true);
-            clearInterval(intervalId);
-            StartTimer();
-            console.log("game started");
-        }
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+        axios.put("/api/StartGame/", { mode })
+            .then((res) => {
+                setStatus(res.data);
+                if (res.data === 'Game ready') {
+                    setStart(true);
+                    clearInterval(intervalId);
+                    StartTimer();
+                    console.log("game started");
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
- 
+
     function StartTimer() {
         console.log('3 sec Timer started');
         setTime(3); // Set initial value of timer
         const intervalId = setInterval(() => { // Use setInterval instead of setTimeout
             setTime((time) => time - 1); // Decrease the timer by 1 every second
         }, 1000);
-    
+
         setTimeout(() => {
             console.log('Timer ended');
             clearInterval(intervalId); // Clear the interval
@@ -55,15 +68,15 @@ function WaitingRoom(props) {
     return (
         <>
             {!IsAuth ?
-            <Navigate to="/" replace={true} />
-            :
-            <div className="container">
-                <h1>Waiting Room</h1>
-                <h1>{status}</h1>
-                {start ? <h2>You are in the queue</h2> : <h2>You are NOT in the queue</h2>}
-                <p>The game will start in {time}</p>
-                <button onClick={handleStartGame}>Start Game</button>
-            </div>
+                <Navigate to="/" replace={true} />
+                :
+                <div className="container">
+                    <h1>Waiting Room</h1>
+                    <h1>{status}</h1>
+                    {start ? <h2>You are in the queue</h2> : <h2>You are NOT in the queue</h2>}
+                    <p>The game will start in {time}</p>
+                    <button onClick={handleStartGame}>Start Game</button>
+                </div>
             }
         </>
     );
