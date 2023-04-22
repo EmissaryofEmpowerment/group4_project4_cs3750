@@ -13,36 +13,22 @@ export function GameScreen() {
     const [time, setTime] = useState('');
     const navigate = useNavigate();
     const mode = 2; // tells the server to start the 60 second timer
-    let intervalId;
+    let GameTimer;
+    let ScoreUpdateTimer;
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
-        UpdatePlayerScores();
-
         axios.get("/api/GenerateBoard")
             .then((res) => {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
                 handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
-                setInterval(function() {
-                    UpdatePlayerScores();
-                }, 5000);  //Every 5 seconds run this function to see if the scores changed on the server             
             })
             .catch((err) => {
                 console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
             });
     }, [])
-
-    function UpdatePlayerScores() {
-        axios.get('api/FetchPlayersScores')
-        .then((res) => {
-            SetPlayersScores(res.data.PlayersScores)
-        })
-        .catch((err) => {
-            console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
-        });
-    }
 
     //Run this useEffect every time the PlayerWord changes
     useEffect(() => {
@@ -79,19 +65,31 @@ export function GameScreen() {
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
 
-
     const handleStartGame = () => {
         console.log('60 sec Timer started');
         setTime(60); // Set initial value of timer
-        const intervalId = setInterval(() => { // Use setInterval instead of setTimeout
+        GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
             setTime((time) => time - 1); // Decrease the timer by 1 every second
         }, 1000);
+        // UpdatePlayerScores();  //has to be called initially to fetch the board at the start of the game because the setInterval waits until the time runs out first before calling.
+        ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
     
         setTimeout(() => {
             console.log('Timer ended');
-            clearInterval(intervalId); // Clear the interval
+            clearInterval(GameTimer); // Clear the GameTimer
+            clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
             navigate('/ResultScreen');
         }, 6000);
+    }
+
+    function UpdatePlayerScores() {
+        axios.get('api/FetchPlayersScores')
+        .then((res) => {
+            SetPlayersScores(res.data.PlayersScores)
+        })
+        .catch((err) => {
+            console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
+        });
     }
 
     //Function for common code used in the above useEffect
