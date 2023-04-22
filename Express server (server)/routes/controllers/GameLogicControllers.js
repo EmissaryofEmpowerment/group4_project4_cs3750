@@ -341,18 +341,17 @@ function StartTimer(mode) {
     }
 }
 
-// won't need this funtion once the timer is on the client.
-exports.CheckTimer = async (req, res) => {
-//        const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
-       // console.log(`Timer is currently running. Elapsed time: ${elapsedTime} s`);
-        // res.send({ Timer: true, elapsedTime });
-     if (waitingPlayers === 0) {
-        console.log('Timer has finished');
-        res.send({ Waiting: false });
-    } else {
-        console.log('Game not ready');
-        res.send({ Waiting: true });
+
+exports.Restart = async (req, res) => {
+    console.log("req.session.Inline");
+    if(req.session.Inline === false){
+        req.session.Inline = true;
+        waitingPlayers++;
+        res.send("Restarting Game");
     }
+
+        // res.send("Restart error");
+    
 }
 
 exports.FetchPlayersScores = (req, res) => {

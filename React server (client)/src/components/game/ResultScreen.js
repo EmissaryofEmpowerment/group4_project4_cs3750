@@ -14,6 +14,7 @@ export function ResultScreen() {
     const [score, SetScore] = useState(0);
     const [foundWords, SetFoundWords] = useState([]);
     const [PlayersGameInfo, SetPlayersGameInfo] = useState([]);
+    const navigate = useNavigate();
 
     const IsAuth = useContext(UserContext);
 
@@ -34,6 +35,20 @@ export function ResultScreen() {
         SetScore(fScore);
         SetResults(gResults);
     };
+
+    const GoToWaitingRoom = () => {
+        axios.get("/api/Restart")
+          .then((res) => {
+            navigate('/WaitingRoom');
+   
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+          
+    };
+
+
 
     //Contruct()
     let Score = sessionStorage.getItem("player1");
@@ -91,9 +106,10 @@ export function ResultScreen() {
                     </ul>
                     <PlayersScores />
                     <h2>Go to Waiting Room to play again.</h2>
-                    <Link to="/WaitingRoom">
+                    <button onClick={GoToWaitingRoom}>Go to Waiting Room</button>
+                    {/* <Link to="/WaitingRoom">
                         <button>Go to Waiting Room</button>
-                    </Link>
+                    </Link> */}
                 </>}
         </div>
     );

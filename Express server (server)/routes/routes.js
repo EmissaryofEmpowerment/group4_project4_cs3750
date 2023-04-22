@@ -24,7 +24,7 @@ const {
     IsGameWord,
     IsGameWordEmpty,
     StartGame,
-    CheckTimer,
+    Restart,
     FetchPlayersScores,
     FetchPlayersGameInfo,
 } = require("./controllers/GameLogicControllers");  //imports everything from inside the {} from the AccountControllers.js file
@@ -78,7 +78,7 @@ router.get("/IsGameWord", IsGameWordEmpty);
 
 router.put("/StartGame", StartGame);
 
-router.get("/CheckTimer", CheckTimer);
+router.get("/Restart", Restart);
 
 router.get('/FetchPlayersScores', FetchPlayersScores)
 
