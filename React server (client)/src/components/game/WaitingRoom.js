@@ -21,47 +21,22 @@ function WaitingRoom(props) {
         }, 120000);
     };
 
-
-
     const checkReady = () => {
     axios.put("/api/StartGame/", { mode })
     .then((res) => {
         setStatus(res.data);
-        // console.log(res.data); // access the data property of the response object
         if (res.data === 'Game ready') {
             setStart(true);
             clearInterval(intervalId);
             StartTimer();
-            // console.log("game started");
+            console.log("game started");
         }
     })
     .catch((err) => {
         console.log(err);
     });
     };
-
-
-
-
-
-
-
-    function displayCountDown(elapsedTime) {
-        setTime(3 - elapsedTime);
-    }
-
-    
-    // function StartTimer() {
-    //             console.log('3 sec Timer started');
-    //             let timerValue = Date.now();
-    //             setTimeout(() => {
-    //                 console.log('Timer ended');
-    //                 timerValue = null;
-    //                 navigate('/Game');
-    //             }, 3000);
-
-        
-    // }
+ 
     function StartTimer() {
         console.log('3 sec Timer started');
         setTime(3); // Set initial value of timer
@@ -75,12 +50,6 @@ function WaitingRoom(props) {
             navigate('/Game');
         }, 3000);
     }
-
-
-
-
-
-
 
 
     return (
