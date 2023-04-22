@@ -7,22 +7,27 @@ let PlayersGameInfo = [
     {
         Username: 'Baron',
         Score: 3,
-        GuessedWords: ['boy', 'dead', 'pee']
+        GuessedWords: ['BOY', 'DEAD', 'PEE']
     },
     {
         Username: 'Taz',
         Score: 7,
-        GuessedWords: ['deep', 'bay', 'boy']
+        GuessedWords: ['DEEP', 'BAY', 'BOY']
     },
     {
         Username: 'Luke',
         Score: 1,
-        GuessedWords: ['deed', 'kay']
+        GuessedWords: ['DEED', 'KAY']
     },
     {
         Username: 'Evan',
         Score: 9,
-        GuessedWords: ['kay']
+        GuessedWords: ['KAY']
+    },
+    {  //This is currently hardcoded for testing the logic for IsValidWord for a user with the username of "testing"
+        Username: 'testing',
+        Score: 0,
+        GuessedWords: []
     }
 ];
 
@@ -54,8 +59,8 @@ exports.GenerateBoard = (req, res) => {
     // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
-    //words that should fail: bob, kayak, peep, deed, boy, bay
-    //words that should be accepted: boy, dead, pee, kay, bay, deep, pea
+    //words that should fail: bob, kayak, peep, deed
+    //words that should be accepted: boy, bay, dead, pee, kay, bay, deep, pea
     Board[1] = [null, 'B', 'O', 'M', 'F', null];
     Board[2] = [null, 'K', 'A', 'Y', 'O', null];
     Board[3] = [null, 'P', 'E', 'V', 'U', null];
@@ -175,9 +180,6 @@ function FindWordRecursion(Word, Board, Row, Column, SelectedCells) {
 
 //determines if the cell was selected from a previous step.
 function CellNotUsed(CurrentCell, PastCells) {
-    // const Result = PastCells.find((SelectedCell) => {  //This finds the first instance inside the PastCells that match the contents of the CurrentCell, if it doesn't find one, the variable will be undefined.
-    //     CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column
-    // });
     let NotUsed = false;
     PastCells.forEach((SelectedCell) => {
         NotUsed |= CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column;
@@ -216,7 +218,6 @@ exports.IsValidWord = async (req, res) => {
     // \rWord on the board: ${WordFound}`);
     let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound); 
     console.log(`\nThe value of MeetsRequirements ${MeetsRequirements}`);
-    req.session.IsValid = MeetsRequirements;
     if(MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
         let WordLength = Word.length;
         //Depending on the word length, add the required points to their score
@@ -229,6 +230,15 @@ exports.IsValidWord = async (req, res) => {
         if(WordLength >= 9) {req.session.Score += 22;}
 
         req.session.PreviousWords.push(Word);  //Add the guessed word the session so the user can't guess it again.
+        PlayersGameInfo.forEach((Entry) => {
+            if(Entry.Username === req.session.Username) {
+                console.log(`Found Player with username ${req.session.Username}`);
+                Entry.Score = req.session.Score;
+                Entry.GuessedWords.push(Word);
+                return;
+            }
+        });
+
         req.session.save(function(err) {  //saves the session and cookie for both the client and server
             if(err) {
                 console.log(`The following error occurred in saving the session:\n\r\t${err}`);

@@ -39,7 +39,7 @@ exports.CreateUser = (req, res) => {
         .then((CreatedUser) => {
             console.log({ CreatedUser });
             req.session.IsAuth = true;
-            req.session.User = CreatedUser.Username;
+            req.session.Username = CreatedUser.Username;
             req.session.save(function(err) {  //saves the session and cookie for both the client and server
                 if(err) {
                     console.log(`The following error occurred in saving the session:\n\r\t${err}`);
@@ -105,7 +105,7 @@ exports.Login = (req, res) => {
                 console.log("Login valid");
                 //make the session with two variables
                 req.session.IsAuth = true;
-                req.session.User = User.Username;
+                req.session.Username = User.Username;
                 req.session.save(function(err) {  //saves the session and cookie for both the client and server
                     if(err) {
                         console.log(`The following error occurred in saving the session:\n\r\t${err}`);

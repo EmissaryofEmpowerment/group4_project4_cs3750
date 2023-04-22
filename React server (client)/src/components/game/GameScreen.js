@@ -359,7 +359,7 @@ export function GameScreen() {
                     <p>
                         This is the response from the Server (For debugging):  <span id="server_response"></span>
                     </p>
-                    <PlayerScores />{/* WIP: Need to link this to the server so it retrieves the data on load and updates like every 2-3 seconds through an axios call probably */}
+                    <PlayerScores />
                 </div>
             </div>
             <div className='row'>
