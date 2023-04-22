@@ -282,11 +282,8 @@ exports.IsGameWordEmpty = (req, res) => {
 }
 
 // start game from waiting room
-// mode 1 = (3) second game start timer 
-// mode 2 = (60) second game start timer 
 // the timer starts when there are two plays in the room ready to play
 exports.StartGame = async (req, res) => {
-    console.log(req.body.mode);
     console.log("waitingPlayers " + waitingPlayers);
     if ( req.session.Inline === true) {
         waitingPlayers--; // the user is either added or removed from que
