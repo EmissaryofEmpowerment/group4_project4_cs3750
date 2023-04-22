@@ -291,10 +291,8 @@ exports.StartGame = async (req, res) => {
     }
     console.log("waitingPlayers " + waitingPlayers);
  if (waitingPlayers === 0) {
-    // else if (waitingPlayers === 0 && req.body.mode === 1) {
-        console.log("the mode is: " + req.body.mode);
         console.log("Game ready")
-        // Send start game signal to both players
+        // Send start game signal to all players
         res.send('Game ready');
     } else {
         res.send('Waiting for another player');

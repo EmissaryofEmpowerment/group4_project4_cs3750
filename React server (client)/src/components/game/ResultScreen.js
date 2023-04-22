@@ -89,10 +89,6 @@ export function ResultScreen() {
 
     return (
         <div className="container">
-            <p>
-                TODO: once we handle the passing of the words found, score and result, we also need to put the player back inline
-                by req.session.Inline = false and waitingPlayers++;
-            </p>
             {!IsAuth ?
                 <Navigate to="/" replace={true} />
                 : <>

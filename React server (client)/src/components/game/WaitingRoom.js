@@ -8,7 +8,6 @@ function WaitingRoom(props) {
     const [start, setStart] = useState(false);
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-    const mode = 1; // tells the server to start the 3 second timer
     const IsAuth = useContext(UserContext);
 
     let intervalId;
@@ -35,7 +34,7 @@ function WaitingRoom(props) {
 
 
     const checkReady = () => {
-        axios.put("/api/StartGame/", { mode })
+        axios.put("/api/StartGame/")
             .then((res) => {
                 setStatus(res.data);
                 if (res.data === 'Game ready') {

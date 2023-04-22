@@ -12,7 +12,7 @@ export function GameScreen() {
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-    const mode = 2; // tells the server to start the 60 second timer
+    let storedTime;
     let GameTimer;
     let ScoreUpdateTimer;
 
@@ -65,31 +65,147 @@ export function GameScreen() {
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
 
+    // const handleStartGame = () => {
+    //     console.log('60 sec Timer started');
+    //     setTime(60); // Set initial value of timer
+    //     GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
+    //         setTime((time) => time - 1); // Decrease the timer by 1 every second
+    //     }, 1000);
+    //     // UpdatePlayerScores();  //has to be called initially to fetch the board at the start of the game because the setInterval waits until the time runs out first before calling.
+    //     ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
+
+    //     setTimeout(() => {
+    //         console.log('Timer ended');
+    //         clearInterval(GameTimer); // Clear the GameTimer
+    //         clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
+    //         navigate('/ResultScreen');
+    //     }, 6000);
+    // }
+
+    // const handleStartGame = () => {
+    //     console.log('60 sec Timer started');
+
+    //     // Check if there's an initial time saved in local storage
+    //     storedTime = localStorage.getItem('initialTime');
+
+    //     let remainingTime;
+    //     if (storedTime) {
+    //         // Calculate the remaining time based on the difference between the start time and the current time
+    //         const initialTime = parseInt(storedTime);
+    //         const startTime = Date.parse(localStorage.getItem('startTime'));
+    //         const currentTime = new Date().getTime();
+    //         const elapsedTime = currentTime - startTime;
+    //         remainingTime = Math.max(0, initialTime - Math.floor(elapsedTime / 1000));
+    //     } else {
+    //         remainingTime = 60; // Default value
+    //     }
+
+    //     setTime(remainingTime); // Set remaining value of timer
+
+    //     GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
+    //         setTime((time) => time - 1); // Decrease the timer by 1 every second
+    //     }, 1000);
+
+    //     ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
+
+    //     setTimeout(() => {
+    //         console.log('Timer ended');
+    //         clearInterval(GameTimer); // Clear the GameTimer
+    //         clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
+    //         localStorage.removeItem('initialTime');
+    //         navigate('/ResultScreen');
+    //     }, remainingTime * 1000);
+
+    //     // Save the initial time value and start time in local storage
+    //     localStorage.setItem('initialTime', remainingTime.toString());
+    //     localStorage.setItem('startTime', new Date().getTime().toString());
+    // }
+
+    // const handleStartGame = () => {
+    //     console.log('60 sec Timer started');
+
+    //     // Check if there's an initial time saved in local storage
+    //     storedTime = localStorage.getItem('initialTime');
+
+    //     let remainingTime;
+    //     if (storedTime) {
+    //         // Calculate the remaining time based on the difference between the start time and the current time
+    //         const initialTime = parseInt(storedTime);
+    //         const startTime = Date.parse(localStorage.getItem('startTime'));
+    //         const currentTime = new Date().getTime();
+    //         const elapsedTime = currentTime - startTime;
+    //         remainingTime = Math.max(0, initialTime - Math.floor(elapsedTime / 1000));
+    //     } else {
+    //         remainingTime = 6; // Default value
+    //     }
+
+    //     setTime(remainingTime); // Set remaining value of timer
+
+    //     GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
+    //         setTime((time) => time - 1); // Decrease the timer by 1 every second
+    //     }, 1000);
+
+    //     ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
+
+    //     // Save the initial time value and start time in local storage
+    //     localStorage.setItem('initialTime', remainingTime.toString());
+    //     localStorage.setItem('startTime', new Date().getTime().toString());
+
+    //     setTimeout(() => {
+    //         console.log('Timer ended');
+    //         clearInterval(GameTimer); // Clear the GameTimer
+    //         clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
+    //         localStorage.removeItem('initialTime');
+    //         navigate('/ResultScreen');
+    //     }, remainingTime * 1000);
+    // }
+
     const handleStartGame = () => {
         console.log('60 sec Timer started');
-        setTime(60); // Set initial value of timer
+
+        // Check if there's an initial time saved in local storage
+        storedTime = localStorage.getItem('initialTime');
+
+        let remainingTime;
+        if (storedTime) {
+            // Calculate the remaining time based on the difference between the start time and the current time
+            const initialTime = parseInt(storedTime);
+            const startTime = parseInt(localStorage.getItem('startTime'));
+            const currentTime = new Date().getTime();
+            const elapsedTime = Math.floor((currentTime - startTime) / 1000); // Calculate elapsed seconds
+            remainingTime = Math.max(0, initialTime - elapsedTime);
+        } else {
+            remainingTime = 60; // Default value
+            localStorage.setItem('initialTime', remainingTime.toString());
+            localStorage.setItem('startTime', new Date().getTime().toString());
+        }
+
+        setTime(remainingTime); // Set remaining value of timer
+
         GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
             setTime((time) => time - 1); // Decrease the timer by 1 every second
         }, 1000);
-        // UpdatePlayerScores();  //has to be called initially to fetch the board at the start of the game because the setInterval waits until the time runs out first before calling.
+
         ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
-    
+
         setTimeout(() => {
             console.log('Timer ended');
             clearInterval(GameTimer); // Clear the GameTimer
             clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
+            localStorage.removeItem('initialTime');
+            localStorage.removeItem('startTime'); // Remove the start time as well
             navigate('/ResultScreen');
-        }, 6000);
+        }, remainingTime * 1000);
     }
 
     function UpdatePlayerScores() {
         axios.get('api/FetchPlayersScores')
-        .then((res) => {
-            SetPlayersScores(res.data.PlayersScores)
-        })
-        .catch((err) => {
-            console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
-        });
+            .then((res) => {
+                SetPlayersScores(res.data.PlayersScores)
+            })
+            .catch((err) => {
+                console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
+            });
     }
 
     //Function for common code used in the above useEffect
