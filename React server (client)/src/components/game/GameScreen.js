@@ -12,7 +12,8 @@ export function GameScreen() {
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-
+    const mode = 2; // tells the server to start the 60 second timer
+    let intervalId;
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
@@ -23,7 +24,7 @@ export function GameScreen() {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
-                handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
+                //handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
                 setInterval(function() {
                     UpdatePlayerScores();
                 }, 5000);  //Every 5 seconds run this function to see if the scores changed on the server             
@@ -92,13 +93,38 @@ export function GameScreen() {
             navigate('/Game');
         }, 60000);
     }
-    };
 
     function displayCountDown(elapsedTime) {
         setTime(60 - elapsedTime);
     }
 
-    
+    const checkStartGameTimer = () => {
+        axios.get("/api/CheckTimer")
+            .then((res) => {
+                const { Timer, elapsedTime } = res.data;
+                displayCountDown(elapsedTime);
+                // console.log("message from server " + Timer);
+                // console.log(elapsedTime);
+                if (!Timer) {
+                    // Handle redirect to GameScreen component
+
+                    // console.log("redirecting to game");
+                    sessionStorage.setItem("player1", document.getElementById("round_score").innerText);
+                    navigate('/ResultScreen');
+
+                    clearInterval(intervalId); // Stop the loop
+                    // console.log("Timer is finished");
+                }
+                else {
+                    // console.log("Timer is running");
+                }
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
+    };
+
+
     //Function for common code used in the above useEffect
     function CheckWordIsGameWord(Word) {
         axios.get(`api/IsGameWord/${Word}`)
@@ -261,7 +287,6 @@ export function GameScreen() {
 
         return (
             <table id='GameBoard'>
-            <p>Time Left {time}</p>
                 <tbody>
                     {GameBoard.map((Row, RowIndex) => (
                         JSON.stringify(Row) !== JSON.stringify(Array(6).fill(null)) ?  //If it is not the top or bottom of the game board.
