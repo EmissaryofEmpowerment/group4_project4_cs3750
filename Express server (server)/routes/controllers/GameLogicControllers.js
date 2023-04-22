@@ -277,6 +277,7 @@ exports.IsGameWordEmpty = (req, res) => {
 // the timer starts when there are two plays in the room ready to play
 exports.StartGame = async (req, res) => {
     console.log(req.body.mode);
+    console.log("waitingPlayers " + waitingPlayers);
     if ( req.session.Inline === true) {
         waitingPlayers--; // the user is either added or removed from que
         req.session.Inline = false;
@@ -287,11 +288,13 @@ exports.StartGame = async (req, res) => {
         res.send('Game started');
         StartTimer(2);
     }
-    else if (waitingPlayers === 0 && req.body.mode === 1) {
+    else if (waitingPlayers === 0) {
+    // else if (waitingPlayers === 0 && req.body.mode === 1) {
         console.log("the mode is: " + req.body.mode);
+        console.log("Game ready")
         // Send start game signal to both players
-        res.send('Game started');
-        StartTimer(1);
+        res.send('Game ready');
+        // StartTimer(1);
     } else {
         res.send('Waiting for another player');
     }
@@ -333,16 +336,15 @@ function StartTimer(mode) {
 
 // won't need this funtion once the timer is on the client.
 exports.CheckTimer = async (req, res) => {
-    if (timerRunning) {
-        const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
+//        const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
        // console.log(`Timer is currently running. Elapsed time: ${elapsedTime} s`);
-        res.send({ Timer: true, elapsedTime });
-    } else if (!timerRunning && waitingPlayers === 0) {
+        // res.send({ Timer: true, elapsedTime });
+     if (waitingPlayers === 0) {
         console.log('Timer has finished');
-        res.send({ Timer: false, elapsedTime: null });
+        res.send({ Waiting: false });
     } else {
         console.log('Game not ready');
-        res.send({ message: 'Game not ready', elapsedTime: null });
+        res.send({ Waiting: true });
     }
 }
 

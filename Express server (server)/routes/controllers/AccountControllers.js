@@ -40,6 +40,8 @@ exports.CreateUser = (req, res) => {
             console.log({ CreatedUser });
             req.session.IsAuth = true;
             req.session.User = CreatedUser.Username;
+            req.session.Inline = true;
+            waitingPlayers++;
             req.session.save(function(err) {  //saves the session and cookie for both the client and server
                 if(err) {
                     console.log(`The following error occurred in saving the session:\n\r\t${err}`);
@@ -105,7 +107,9 @@ exports.Login = (req, res) => {
                 console.log("Login valid");
                 //make the session with two variables
                 req.session.IsAuth = true;
+                req.session.Inline = true;
                 req.session.User = User.Username;
+                waitingPlayers++;
                 req.session.save(function(err) {  //saves the session and cookie for both the client and server
                     if(err) {
                         console.log(`The following error occurred in saving the session:\n\r\t${err}`);
@@ -151,6 +155,7 @@ exports.Logout = (req, res) => {
             console.log("Logout successful");
             // res.clearCookie(process.env.COOKIE_NAME);  // (not used because the moment they reload any page it is recreated) Deletes the cookie from the client.  Solution source https://www.geeksforgeeks.org/express-js-res-clearcookie-function/
             console.log("The session is now " + JSON.stringify(req.session));
+            waitingPlayers--;
             res.json({
                 IsAuth: false,
             });
