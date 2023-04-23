@@ -176,7 +176,7 @@ exports.IsAuth = (req, res) => {
     }
     else {
         console.log("User not logged in");
-        waitingPlayers--;
+        // waitingPlayers--;
         res.json({
             IsAuth: false
         });
