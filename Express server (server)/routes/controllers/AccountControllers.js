@@ -167,7 +167,8 @@ exports.Logout = (req, res) => {
             console.log("The session is now " + JSON.stringify(req.session));
             timerRunning = false;
             timerValue = null;
-           waitingPlayers--;
+            if(req.session.Inline === true){ // only decrements the waitingPlayers, if the player is inline, if in game, they're not inline
+            waitingPlayers--;}
             res.json({
                 IsAuth: false,
             });
