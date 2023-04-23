@@ -155,6 +155,8 @@ exports.Logout = (req, res) => {
             console.log("Logout successful");
             // res.clearCookie(process.env.COOKIE_NAME);  // (not used because the moment they reload any page it is recreated) Deletes the cookie from the client.  Solution source https://www.geeksforgeeks.org/express-js-res-clearcookie-function/
             console.log("The session is now " + JSON.stringify(req.session));
+            if(req.session.Inline === true){ // only decrements the waitingPlayers, if the player is inline, if in game, they're not inline
+                waitingPlayers--;}
             res.json({
                 IsAuth: false,
             });
