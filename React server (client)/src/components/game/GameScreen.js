@@ -18,7 +18,7 @@ export function GameScreen() {
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
-        axios.get("/api/GenerateBoard")
+        axios.get("/api/GetBoard")
             .then((res) => {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
@@ -108,6 +108,7 @@ export function GameScreen() {
             setTime((time) => time - 1); // Decrease the timer by 1 every second
         }, 1000);
 
+        UpdatePlayerScores();  //This is called so on page loads it displays the game board because the setInterval doesn't call the function when it is started.
         ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
 
         setTimeout(() => {

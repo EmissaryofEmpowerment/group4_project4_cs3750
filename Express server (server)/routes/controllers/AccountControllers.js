@@ -39,11 +39,11 @@ exports.CreateUser = (req, res) => {
         .then((CreatedUser) => {
             console.log({ CreatedUser });
             req.session.IsAuth = true;
-            req.session.User = CreatedUser.Username;
+            req.session.Username = CreatedUser.Username;
             req.session.Inline = true;
-            waitingPlayers++;
-            req.session.save(function(err) {  //saves the session and cookie for both the client and server
-                if(err) {
+            WaitingPlayers++;
+            req.session.save(function (err) {  //saves the session and cookie for both the client and server
+                if (err) {
                     console.log(`The following error occurred in saving the session:\n\r\t${err}`);
                     res.send({
                         IsAuth: false,
@@ -58,7 +58,7 @@ exports.CreateUser = (req, res) => {
                     });
                 }
             });
-            
+
         })
         .catch((err) => {
             console.log(`The following error occurred in creating the new user:\n\r\t${err}`)
@@ -108,10 +108,11 @@ exports.Login = (req, res) => {
                 //make the session with two variables
                 req.session.IsAuth = true;
                 req.session.Inline = true;
-                req.session.User = User.Username;
-                waitingPlayers++;
-                req.session.save(function(err) {  //saves the session and cookie for both the client and server
-                    if(err) {
+                req.session.Username = User.Username;
+                WaitingPlayers++;
+                console.log(`Waiting players is now ${WaitingPlayers}`);
+                req.session.save(function (err) {  //saves the session and cookie for both the client and server
+                    if (err) {
                         console.log(`The following error occurred in saving the session:\n\r\t${err}`);
                     }
                     else {
@@ -143,6 +144,8 @@ exports.Login = (req, res) => {
 exports.Logout = (req, res) => {
     console.log("\nAccountControllers.js file/Logout route");
     // Now destroy the session inside the DB/memory and unset the req.session property.
+    const Inline = req.session.Inline;
+
     req.session.destroy((err) => {
         if (err) {
             console.log("Some error occurred to prevent you from logging out");
@@ -155,8 +158,10 @@ exports.Logout = (req, res) => {
             console.log("Logout successful");
             // res.clearCookie(process.env.COOKIE_NAME);  // (not used because the moment they reload any page it is recreated) Deletes the cookie from the client.  Solution source https://www.geeksforgeeks.org/express-js-res-clearcookie-function/
             console.log("The session is now " + JSON.stringify(req.session));
-            if(req.session.Inline === true){ // only decrements the waitingPlayers, if the player is inline, if in game, they're not inline
-                waitingPlayers--;}
+            if (Inline) { // only decrements the WaitingPlayers, if the player is inline, if in game, they're not inline
+                WaitingPlayers--;
+                console.log(`Waiting players is now ${WaitingPlayers}`);
+            }
             res.json({
                 IsAuth: false,
             });
@@ -169,14 +174,14 @@ exports.IsAuth = (req, res) => {
     console.log(`Current Session:\n\t${JSON.stringify(req.session)}`);
     if (req.session.IsAuth) {
         console.log("User logged in");
-        // waitingPlayers++;
+        // WaitingPlayers++;
         res.json({
             IsAuth: true
         });
     }
     else {
         console.log("User not logged in");
-        // waitingPlayers--;
+        // WaitingPlayers--;
         res.json({
             IsAuth: false
         });
