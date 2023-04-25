@@ -14,6 +14,7 @@ export function ResultScreen() {
     const [score, SetScore] = useState(0);
     const [foundWords, SetFoundWords] = useState([]);
     const [PlayersGameInfo, SetPlayersGameInfo] = useState([]);
+    const navigate = useNavigate();
 
     const IsAuth = useContext(UserContext);
 
@@ -35,49 +36,59 @@ export function ResultScreen() {
         SetResults(gResults);
     };
 
+    const GoToWaitingRoom = () => {
+        axios.get("/api/Restart")
+          .then((res) => {
+            navigate('/WaitingRoom');
+   
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+          
+    };
+
+
+
     //Contruct()
     let Score = sessionStorage.getItem("player1");
     // SetScore(Score);
 
     const PlayersScores = () => {
+        // console.log(`Raw Data: ${JSON.stringify(PlayersGameInfo)}`)
         let SortResults = PlayersGameInfo.sort((Item1, Item2) => {  //Sorts the array by descending score.  Source https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
             return Item2.Score - Item1.Score;
         });
 
-        //TODO: Sort by word in ascending order for each player
+        // console.log(`Data sorted by score: ${JSON.stringify(SortResults)}`)
+
+        SortResults.forEach((Entry) => {
+            Entry.GuessedWords = Entry.GuessedWords.sort();  //Sorts the array of words found by descending order
+        });
+
+        // console.log(`Word sorted in alphabetic order: ${JSON.stringify(SortResults)}`)
 
         return (
             <>
                 <p>Game Results</p>
                 <ol>
-                {SortResults.map((Entry, EntryIndex) => (
-                    <>
+                    {SortResults.map((Entry, EntryIndex) => (
                         <li key={Entry.Username}>
-                            {Entry.Username} with a score of {Entry.Score}
-                        </li>
-                        {/* TODO: Display the words the user has guessed to the client */}
-                        {/* <p key={Entry.GuessedWords}>
-                            Words Player Found:
-                            {Entry.GuessedWords.map((CurrentWord) => (
-                                Entry.GuessedWords[Entry.GuessedWords.length - 1] === {CurrentWord} ?
-                                <span key={CurrentWord}> {CurrentWord} </span> :
-                                <span key={CurrentWord}> {CurrentWord},</span>
+                            {Entry.Username} with a score of {Entry.Score}<br/>
+                            Words Found: {Entry.GuessedWords.map((Word, WordIndex) => (
+                                Entry.GuessedWords.length - 1 !== WordIndex ?
+                                Word + ", " :
+                                Word
                             ))}
-                        </p> */}
-                    </>
-                ))}
+                        </li>
+                    ))}
                 </ol>
             </>
         );
     }
 
-
     return (
         <div className="container">
-            <p>
-                TODO: once we handle the passing of the words found, score and result, we also need to put the player back inline
-                by req.session.Inline = false and waitingPlayers++;
-            </p>
             {!IsAuth ?
                 <Navigate to="/" replace={true} />
                 : <>
@@ -91,9 +102,10 @@ export function ResultScreen() {
                     </ul>
                     <PlayersScores />
                     <h2>Go to Waiting Room to play again.</h2>
-                    <Link to="/WaitingRoom">
+                    <button onClick={GoToWaitingRoom}>Go to Waiting Room</button>
+                    {/* <Link to="/WaitingRoom">
                         <button>Go to Waiting Room</button>
-                    </Link>
+                    </Link> */}
                 </>}
         </div>
     );

@@ -1,34 +1,13 @@
 //make your routes here
-global.waitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
-let timerRunning = false;
+global.WaitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
+let Board;
 
-// Will contain an array of objects corresponding with the players in the game (WIP, for right now it will be hardcoded)
-let PlayersGameInfo = [
-    {
-        Username: 'Baron',
-        Score: 3,
-        GuessedWords: ['boy', 'dead', 'pee']
-    },
-    {
-        Username: 'Taz',
-        Score: 7,
-        GuessedWords: ['deep', 'bay', 'boy']
-    },
-    {
-        Username: 'Luke',
-        Score: 1,
-        GuessedWords: ['deed', 'kay']
-    },
-    {
-        Username: 'Evan',
-        Score: 9,
-        GuessedWords: ['kay']
-    }
-];
+// Will contain an array of objects corresponding with the players in the game
+let PlayersGameInfo = [];
 
-exports.GenerateBoard = (req, res) => {
-    console.log("\nGameLogicControllers.js file/GenerateBoard route");
-    let Board = [
+function GenerateBoard() {
+    console.log("Generating the board for the clients");
+    Board = [
         Array(6).fill(null),
         Array(6).fill(null),
         Array(6).fill(null),
@@ -54,8 +33,8 @@ exports.GenerateBoard = (req, res) => {
     // }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
-    //words that should fail: bob, kayak, peep, deed, boy, bay
-    //words that should be accepted: boy, dead, pee, kay, bay, deep, pea
+    //words that should fail: bob, kayak, peep, deed
+    //words that should be accepted: boy, bay, dead, pee, kay, bay, deep, pea, make
     Board[1] = [null, 'B', 'O', 'M', 'F', null];
     Board[2] = [null, 'K', 'A', 'Y', 'O', null];
     Board[3] = [null, 'P', 'E', 'V', 'U', null];
@@ -65,12 +44,16 @@ exports.GenerateBoard = (req, res) => {
     // Board.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
     //     console.log(`Row ${RowIndex}: ${JSON.stringify(Row)}`);
     // });
+}
+
+exports.GetBoard = (req, res) => {
+    console.log("\nGameLogicControllers.js file/GetBoard route");
 
     req.session.Score = 0;  //Set the starting score for the server and client cookie
     req.session.PreviousWords = [];  //clears/makes a session variable for the previous word the user has guessed
     req.session.Board = Board;  //Save the board to the session
-    req.session.save(function(err) {  //saves the session and cookie for both the client and server
-        if(err) {
+    req.session.save(function (err) {  //saves the session and cookie for both the client and server
+        if (err) {
             console.log(`The following error occurred in saving the session:\n\r\t${err}`);
         }
         else {
@@ -95,20 +78,20 @@ function FindWord(Word, Board) {
     \r\tBoard: ${JSON.stringify(Board)}`);
     // console.log(`Searching for the word "${Word}".  Looking for character "${Word[0]}".`)
     let WordFound = false;
-    for(let Row = 1; Row <= 4; Row++) {
-        if(WordFound) {break;}
+    for (let Row = 1; Row <= 4; Row++) {
+        if (WordFound) { break; }
         // console.log(`checking row ${Board[Row]}`);
-        for(let Column = 1; Column <= 4; Column++) {
-            if(WordFound) {break;}
+        for (let Column = 1; Column <= 4; Column++) {
+            if (WordFound) { break; }
             // console.log(`accessing cell "${Board[Row][Column]}" at row ${Row} column ${Column}`);
-            if(Word[0] === Board[Row][Column]) {  //If the first character was found and the recursion found the word, then return true.
+            if (Word[0] === Board[Row][Column]) {  //If the first character was found and the recursion found the word, then return true.
                 console.log(`Found a "${Word[0]}" at row ${Row} column ${Column}`);
-                WordFound = WordFound | FindWordRecursion(Word.slice(1, Word.length), Board, Row + 1, Column + 1, [{"Row": Row, "Column": Column}]);  //makes use of bitwise OR assignment so it can search the entire game board for the word instead of just the first instance of the letter, however it will return a 0 for false and a 1 for true.
+                WordFound = WordFound | FindWordRecursion(Word.slice(1, Word.length), Board, Row + 1, Column + 1, [{ "Row": Row, "Column": Column }]);  //makes use of bitwise OR assignment so it can search the entire game board for the word instead of just the first instance of the letter, however it will return a 0 for false and a 1 for true.
             }
-        }     
+        }
     }
-    if(!WordFound) {console.log(`Unable to find the word "${Word}" on the board`);}
-    else {console.log(`Found the word "${Word}" on the board`);}
+    if (!WordFound) { console.log(`Unable to find the word "${Word}" on the board`); }
+    else { console.log(`Found the word "${Word}" on the board`); }
     return WordFound;  //The word was not found
 };
 
@@ -124,28 +107,28 @@ function FindWordRecursion(Word, Board, Row, Column, SelectedCells) {
     \r\tBoard: ${JSON.stringify(Board)}
     \r\tRow: ${Row}
     \r\tColumn: ${Column}
-    \r\tSelectedCells: ${JSON.stringify(SelectedCells)}`);                
+    \r\tSelectedCells: ${JSON.stringify(SelectedCells)}`);
 
     // base case
-    if(Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+    if (Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
         console.log("Found all the letters for the word on the board.");
         return true;
     }
 
     //recursion
     for (let Side = 0; Side < 4; Side++) {
-        if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+        if (WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
         if (Side % 2 == 0) { //We are moving vertically
-            if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+            if (WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
             // console.log(`Moving vertically in the ${RowMultiplier} direction`)  //For debugging
             for (let Run = 1; Run < 3; Run++) {
-                if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+                if (WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
                 Row += 1 * RowMultiplier;
-                
+
                 // console.log(`Accessing cell in row ${Row} column ${Column}`);
-                if(Word[0] === Board[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
+                if (Word[0] === Board[Row][Column] && CellNotUsed({ "Row": Row, "Column": Column }, SelectedCells)) {
                     console.log(`Valid cell found on row ${Row} column ${Column}`);
-                    SelectedCells.push({"Row": Row, "Column": Column});
+                    SelectedCells.push({ "Row": Row, "Column": Column });
                     WordFound |= FindWordRecursion(Word.slice(1, Word.length), Board, Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                     // console.log(`WordFound is now ${WordFound}`);
                 }
@@ -153,16 +136,16 @@ function FindWordRecursion(Word, Board, Row, Column, SelectedCells) {
             RowMultiplier *= -1;  //Reverse the direction for when it moves down the other side
         }
         else {   //We are moving horizontally
-            if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+            if (WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
             // console.log(`Moving horizontally in the ${ColumnMultiplier} direction`)
             for (let Run = 1; Run < 3; Run++) {
-                if(WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
+                if (WordFound) { break; }  // If the word is found, then just "tunnel" back out of the recursion and return the results to the client.
                 Column += 1 * ColumnMultiplier;
-                
+
                 // console.log(`Accessing cell in row ${Row} column ${Column}`);
-                if(Word[0] === Board[Row][Column] && CellNotUsed({"Row": Row, "Column": Column}, SelectedCells)) {
+                if (Word[0] === Board[Row][Column] && CellNotUsed({ "Row": Row, "Column": Column }, SelectedCells)) {
                     console.log(`A valid cell found on row ${Row} column ${Column}`);
-                    SelectedCells.push({"Row": Row, "Column": Column});
+                    SelectedCells.push({ "Row": Row, "Column": Column });
                     WordFound |= FindWordRecursion(Word.slice(1, Word.length), Board, Row + 1, Column + 1, structuredClone(SelectedCells));  //structeredClone() function makes a deep copy of the SelectedCells array (This is done because objects are always passed by reference normally) Solution source https://stackoverflow.com/questions/14491405/javascript-passing-arrays-to-functions-by-value-leaving-original-array-unaltere
                     // console.log(`WordFound is now ${WordFound}`);
                 }
@@ -175,9 +158,6 @@ function FindWordRecursion(Word, Board, Row, Column, SelectedCells) {
 
 //determines if the cell was selected from a previous step.
 function CellNotUsed(CurrentCell, PastCells) {
-    // const Result = PastCells.find((SelectedCell) => {  //This finds the first instance inside the PastCells that match the contents of the CurrentCell, if it doesn't find one, the variable will be undefined.
-    //     CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column
-    // });
     let NotUsed = false;
     PastCells.forEach((SelectedCell) => {
         NotUsed |= CurrentCell.Row === SelectedCell.Row && CurrentCell.Column === SelectedCell.Column;
@@ -214,23 +194,31 @@ exports.IsValidWord = async (req, res) => {
     // \rMeets minimum length: ${Word.length >= 3}
     // \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
     // \rWord on the board: ${WordFound}`);
-    let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound); 
+    let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound);
     console.log(`\nThe value of MeetsRequirements ${MeetsRequirements}`);
-    req.session.IsValid = MeetsRequirements;
-    if(MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
+    if (MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
         let WordLength = Word.length;
         //Depending on the word length, add the required points to their score
-        if(WordLength == 3) {req.session.Score += 1;}
-        if(WordLength == 4) {req.session.Score += 2;}
-        if(WordLength == 5) {req.session.Score += 4;}
-        if(WordLength == 6) {req.session.Score += 7;}
-        if(WordLength == 7) {req.session.Score += 11;}
-        if(WordLength == 8) {req.session.Score += 16;}
-        if(WordLength >= 9) {req.session.Score += 22;}
+        if (WordLength == 3) { req.session.Score += 1; }
+        if (WordLength == 4) { req.session.Score += 2; }
+        if (WordLength == 5) { req.session.Score += 4; }
+        if (WordLength == 6) { req.session.Score += 7; }
+        if (WordLength == 7) { req.session.Score += 11; }
+        if (WordLength == 8) { req.session.Score += 16; }
+        if (WordLength >= 9) { req.session.Score += 22; }
 
         req.session.PreviousWords.push(Word);  //Add the guessed word the session so the user can't guess it again.
-        req.session.save(function(err) {  //saves the session and cookie for both the client and server
-            if(err) {
+        PlayersGameInfo.forEach((Entry) => {
+            if (Entry.Username === req.session.Username) {
+                console.log(`Found Player with username ${req.session.Username}`);
+                Entry.Score = req.session.Score;
+                Entry.GuessedWords.push(Word);
+                return;
+            }
+        });
+
+        req.session.save(function (err) {  //saves the session and cookie for both the client and server
+            if (err) {
                 console.log(`The following error occurred in saving the session:\n\r\t${err}`);
             }
             else {
@@ -238,7 +226,7 @@ exports.IsValidWord = async (req, res) => {
             }
         });
     }
-    
+
     console.log(`It is ${MeetsRequirements} that "${Word}" is valid.`);
     console.log(`\n This is what will be sent back to the React Server ${JSON.stringify(req.session)}`);
     res.json({
@@ -250,7 +238,7 @@ exports.IsValidWord = async (req, res) => {
 
 //used to determine if the supplied word is a word.
 exports.IsGameWord = async (req, res) => {
-    console.log("\nGameLogicControllers.js file/IsWord route");
+    console.log("\nGameLogicControllers.js file/IsGameWord route");
     let Word = req.params.Word
     console.log(`Determining if the word "${Word}" is a word`);
     const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
@@ -264,92 +252,81 @@ exports.IsGameWord = async (req, res) => {
     });
 }
 
-//This has to be included because otherwise, we will get a 404 error for the route IsWord.
+//This has to be included because otherwise, we will get a 404 error for the route IsWord as how the axios calls are currently set up
 exports.IsGameWordEmpty = (req, res) => {
+    console.log("\nGameLogicControllers.js file/IsGameWordEmpty route");
     res.json({
         IsWord: false,
     })
 }
 
+exports.EnqueuePlayer = (req, res) => {
+    console.log("\nGameLogicControllers.js file/EnqueuePlayer route");
+    console.log(`Adding the user with the username "${req.session.Username}" to the queue`);
+    PlayersGameInfo.push({
+        Username: req.session.Username,
+        Score: 0,
+        GuessedWords: []
+    });
+    console.log(`Added the player to the the array\n${JSON.stringify(PlayersGameInfo)}`)
+}
+
+exports.DequeuePlayer = (req, res) => {
+    console.log("\nGameLogicControllers.js file/DequeuePlayer route");
+    console.log(`Searching for player with username "${req.session.Username}" inside this array\n${JSON.stringify(PlayersGameInfo)}`);
+    PlayersGameInfo.forEach((Entry, EntryIndex) => {
+        if(Entry.Username === req.session.Username) {
+            PlayersGameInfo.slice(EntryIndex, 1);  //Remove the player from the PlayersGameInfo array
+            console.log(`Found the player with the username supplied and removed them\n${JSON.stringify(PlayersGameInfo)}`);
+            return true;
+        }
+    });
+}
+
 // start game from waiting room
-// mode 1 = (3) second game start timer 
-// mode 2 = (60) second game start timer 
 // the timer starts when there are two plays in the room ready to play
 exports.StartGame = async (req, res) => {
-    console.log(req.body.mode);
-    if ( req.session.Inline === true) {
-        waitingPlayers--; // the user is either added or removed from que
+    console.log(`\nGameLogicControllers.js file/StartGame route for user ${req.session.Username}`);
+    if (req.session.Inline === true) {
+        WaitingPlayers--; // the user is either added or removed from que
         req.session.Inline = false;
     }
-    console.log("waitingPlayers " + waitingPlayers);
-    if (req.body.mode === 2) {
-        console.log("the mode is: " + req.body.mode);
-        res.send('Game started');
-        StartTimer(2);
-    }
-    else if (waitingPlayers === 0 && req.body.mode === 1) {
-        console.log("the mode is: " + req.body.mode);
-        // Send start game signal to both players
-        res.send('Game started');
-        StartTimer(1);
+    console.log("WaitingPlayers " + WaitingPlayers);
+    if (WaitingPlayers === 0) {
+        if(Board = []) {  //if the board has not been generated yet
+            GenerateBoard();
+        }
+        console.log(`Game ready`);
+        // Send start game signal to all players
+        res.send('Game ready');
     } else {
+        console.log(`Waiting for another player`);
         res.send('Waiting for another player');
     }
 };
 
-// mode 1 = (3) second game start timer 
-// mode 2 = (60) second game start timer 
-// the timer starts when there are two plays in the room ready to play
-// move the timers to the client 
-function StartTimer(mode) {
-    if (mode === 1) {
-        if (!timerRunning) {
-            console.log('3 sec Timer started');
-            timerRunning = true;
-            timerValue = Date.now();
-            setTimeout(() => {
-                console.log('Timer ended');
-                timerRunning = false;
-                timerValue = null;
-            }, 3000);
-        } else {
-            console.log('Timer is already running');
-        }
-    } else if (mode === 2) {
-        if (!timerRunning) {
-            console.log('60 sec Timer started');
-            timerRunning = true;
-            timerValue = Date.now();
-            setTimeout(() => {
-                console.log('Timer ended');
-                timerRunning = false;
-                timerValue = null;
-            }, 60000);
-        } else {
-            console.log('Timer is already running');
-        }
+exports.Restart = async (req, res) => {
+    console.log("\nGameLogicControllers.js file/Restart route");
+    if (PlayersGameInfo.length != WaitingPlayers) {  //a player presses the "Go To Waiting Room" on the result screen, then reset the players that are playing and the board back to their defaults.
+        PlayersGameInfo = [];
+        Board = [];
     }
-}
-
-// won't need this funtion once the timer is on the client.
-exports.CheckTimer = async (req, res) => {
-    if (timerRunning) {
-        const elapsedTime = Math.floor((Date.now() - timerValue) / 1000);
-       // console.log(`Timer is currently running. Elapsed time: ${elapsedTime} s`);
-        res.send({ Timer: true, elapsedTime });
-    } else if (!timerRunning && waitingPlayers === 0) {
-        console.log('Timer has finished');
-        res.send({ Timer: false, elapsedTime: null });
-    } else {
-        console.log('Game not ready');
-        res.send({ message: 'Game not ready', elapsedTime: null });
+    if (req.session.Inline === false) {
+        req.session.Inline = true;
+        WaitingPlayers++;
+        console.log(`Waiting Players: ${WaitingPlayers}`);
+        res.send("Restarting Game");
+    }
+    else {
+        console.log(`Waiting Players: ${WaitingPlayers}`);
+        res.send("Restart error");
     }
 }
 
 exports.FetchPlayersScores = (req, res) => {
     let CurrentDate = new Date();
-    console.log(`\nGameLogicControllers.js file/FetchPlayersScores route at time ${CurrentDate.getHours() + ":" + CurrentDate.getMinutes() + ":" + CurrentDate.getSeconds()}`);
-    
+    console.log(`\nGameLogicControllers.js file/FetchPlayersScores route at time ${CurrentDate.getHours() + ":" + CurrentDate.getMinutes() + ":" + CurrentDate.getSeconds()}.\nFor the user ${req.session.Username}.`);
+
     PlayersScores = []
     PlayersGameInfo.forEach((Entry) => {
         PlayersScores.push({ Username: Entry.Username, Score: Entry.Score });
@@ -364,6 +341,6 @@ exports.FetchPlayersGameInfo = (req, res) => {
     console.log(`\nGameLogicControllers.js file/FetchPlayersInfo route`);
 
     res.json({
-        PlayersGameInfo,
+        PlayersGameInfo,  //This is the same as calling "PlayersGameInfo: PlayersGameInfo,""
     })
 }

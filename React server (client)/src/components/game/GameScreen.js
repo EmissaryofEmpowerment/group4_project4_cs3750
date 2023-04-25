@@ -12,37 +12,23 @@ export function GameScreen() {
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-    const mode = 2; // tells the server to start the 60 second timer
-    let intervalId;
+    let storedTime;
+    let GameTimer;
+    let ScoreUpdateTimer;
 
     //Run this useEffect only when the page loads (need to see about if I should prevent the page from being reloaded after initial load?)
     useEffect(() => {
-        UpdatePlayerScores();
-
-        axios.get("/api/GenerateBoard")
+        axios.get("/api/GetBoard")
             .then((res) => {
                 // console.log(JSON.stringify(res.data));
                 SetGameBoard(res.data.Board);
                 SetScore(res.data.Score);
-                //handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
-                setInterval(function() {
-                    UpdatePlayerScores();
-                }, 5000);  //Every 5 seconds run this function to see if the scores changed on the server             
+                handleStartGame();  // start the 60 sec timer on the server (Disable to prevent the timer from starting)
             })
             .catch((err) => {
                 console.log(`Unable to fetch the game board for the below reason\n${err.message}`);
             });
     }, [])
-
-    function UpdatePlayerScores() {
-        axios.get('api/FetchPlayersScores')
-        .then((res) => {
-            SetPlayersScores(res.data.PlayersScores)
-        })
-        .catch((err) => {
-            console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
-        });
-    }
 
     //Run this useEffect every time the PlayerWord changes
     useEffect(() => {
@@ -79,56 +65,71 @@ export function GameScreen() {
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
 
+    // const handleStartGame = () => {
+    //     console.log('60 sec Timer started');
+    //     setTime(60); // Set initial value of timer
+    //     GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
+    //         setTime((time) => time - 1); // Decrease the timer by 1 every second
+    //     }, 1000);
+    //     // UpdatePlayerScores();  //has to be called initially to fetch the board at the start of the game because the setInterval waits until the time runs out first before calling.
+    //     ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
+
+    //     setTimeout(() => {
+    //         console.log('Timer ended');
+    //         clearInterval(GameTimer); // Clear the GameTimer
+    //         clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
+    //         navigate('/ResultScreen');
+    //     }, 6000);
+    // }
 
     const handleStartGame = () => {
-        axios.put("/api/StartGame/", { mode })
-            .then((res) => {
-                setStatus(res.data);
-                // console.log(res.data); // access the data property of the response object
-                if (res.data === 'Game started') {
-                    // setIsWaiting(false);
-                    intervalId = setInterval(checkStartGameTimer, 500); // Run checkStartGameTimer every 500ms
-                    setTimeout(() => {
-                        clearInterval(intervalId); // Stop the loop after 2 minutes
-                    }, 120000);
-                    // console.log("game started");
-                }
-            })
-            .catch((err) => {
-                console.log(err.message);
-            });
-    };
+        console.log('60 sec Timer started');
 
-    function displayCountDown(elapsedTime) {
-        setTime(60 - elapsedTime);
+        // Check if there's an initial time saved in local storage
+        storedTime = localStorage.getItem('initialTime');
+
+        let remainingTime;
+        if (storedTime) {
+            // Calculate the remaining time based on the difference between the start time and the current time
+            const initialTime = parseInt(storedTime);
+            const startTime = parseInt(localStorage.getItem('startTime'));
+            const currentTime = new Date().getTime();
+            const elapsedTime = Math.floor((currentTime - startTime) / 1000); // Calculate elapsed seconds
+            remainingTime = Math.max(0, initialTime - elapsedTime);
+        } else {
+            remainingTime = 60; // Default value
+            localStorage.setItem('initialTime', remainingTime.toString());
+            localStorage.setItem('startTime', new Date().getTime().toString());
+        }
+
+        setTime(remainingTime); // Set remaining value of timer
+
+        GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
+            setTime((time) => time - 1); // Decrease the timer by 1 every second
+        }, 1000);
+
+        UpdatePlayerScores();  //This is called so on page loads it displays the game board because the setInterval doesn't call the function when it is started.
+        ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
+
+        setTimeout(() => {
+            console.log('Timer ended');
+            clearInterval(GameTimer); // Clear the GameTimer
+            clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
+            localStorage.removeItem('initialTime');
+            localStorage.removeItem('startTime'); // Remove the start time as well
+            navigate('/ResultScreen');
+        }, remainingTime * 1000);
     }
 
-    const checkStartGameTimer = () => {
-        axios.get("/api/CheckTimer")
+    function UpdatePlayerScores() {
+        axios.get('api/FetchPlayersScores')
             .then((res) => {
-                const { Timer, elapsedTime } = res.data;
-                displayCountDown(elapsedTime);
-                // console.log("message from server " + Timer);
-                // console.log(elapsedTime);
-                if (!Timer) {
-                    // Handle redirect to GameScreen component
-
-                    // console.log("redirecting to game");
-                    sessionStorage.setItem("player1", document.getElementById("round_score").innerText);
-                    navigate('/ResultScreen');
-
-                    clearInterval(intervalId); // Stop the loop
-                    // console.log("Timer is finished");
-                }
-                else {
-                    // console.log("Timer is running");
-                }
+                SetPlayersScores(res.data.PlayersScores)
             })
             .catch((err) => {
-                console.log(err.message);
+                console.log(`Fetching scores from the server failed for this reason:\n${err.message}\n`);
             });
-    };
-
+    }
 
     //Function for common code used in the above useEffect
     function CheckWordIsGameWord(Word) {
@@ -359,7 +360,7 @@ export function GameScreen() {
                     <p>
                         This is the response from the Server (For debugging):  <span id="server_response"></span>
                     </p>
-                    <PlayerScores />{/* WIP: Need to link this to the server so it retrieves the data on load and updates like every 2-3 seconds through an axios call probably */}
+                    <PlayerScores />
                 </div>
             </div>
             <div className='row'>

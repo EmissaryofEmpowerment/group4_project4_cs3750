@@ -19,12 +19,14 @@ const {
 } = require("./controllers/PlayerEntryControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
 const {
-    GenerateBoard,
+    GetBoard,
     IsValidWord,
     IsGameWord,
     IsGameWordEmpty,
+    EnqueuePlayer,
+    DequeuePlayer,
     StartGame,
-    CheckTimer,
+    Restart,
     FetchPlayersScores,
     FetchPlayersGameInfo,
 } = require("./controllers/GameLogicControllers");  //imports everything from inside the {} from the AccountControllers.js file
@@ -68,7 +70,7 @@ router.get("/IsAuth", IsAuth);
 //#endregion
 
 //#region GameLogic routes
-router.get("/GenerateBoard", GenerateBoard);
+router.get("/GetBoard", GetBoard);
 
 router.get("/IsValidWord/:Word", IsValidWord);
 
@@ -76,9 +78,13 @@ router.get("/IsGameWord/:Word", IsGameWord);
 
 router.get("/IsGameWord", IsGameWordEmpty);
 
+router.put('/EnqueuePlayer', EnqueuePlayer);
+
+router.put('/DequeuePlayer', DequeuePlayer);
+
 router.put("/StartGame", StartGame);
 
-router.get("/CheckTimer", CheckTimer);
+router.get("/Restart", Restart);
 
 router.get('/FetchPlayersScores', FetchPlayersScores)
 
