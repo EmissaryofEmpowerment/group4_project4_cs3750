@@ -52,7 +52,7 @@ export function GameScreen() {
                         console.log(`"${PlayerWord}" is a valid word:  ${res.data.IsValid}`);
                         SetScore(res.data.NewScore);
                         SetGuessedWords(res.data.GuessedWords);
-                        document.getElementById("server_response").innerText = res.data.IsValid;
+                        document.getElementById("server_response").innerText = `${PlayerWord} is ${res.data.IsValid?'': 'not'} a valid word`;
                     })
                     .catch((err) => {
                         console.log(`Is valid word failed for this reason:\n${err.message}\n`);
@@ -357,9 +357,7 @@ export function GameScreen() {
                     </p>
                 </div>
                 <div className='col-md-6'>
-                    <p>
-                        This is the response from the Server (For debugging):  <span id="server_response"></span>
-                    </p>
+                    <p id="server_response"></p>
                     <PlayerScores />
                 </div>
             </div>
