@@ -35,6 +35,7 @@ function WaitingRoom(props) {
 
         setTimeout(() => {
             clearInterval(intervalId); // Stop the loop after 2 minutes
+            console.log(`The remaining players didn't click start`);
         }, 120000);
     };
 
