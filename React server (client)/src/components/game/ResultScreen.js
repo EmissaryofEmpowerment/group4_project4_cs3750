@@ -44,6 +44,7 @@ export function ResultScreen() {
 
     //Contruct()
     let Score = sessionStorage.getItem("player1");
+    console.log(`Value of Score${Score}`);
     // SetScore(Score);
 
     const PlayersScores = () => {

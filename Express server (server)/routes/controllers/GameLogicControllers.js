@@ -18,27 +18,27 @@ function GenerateBoard() {
     const Vowels = ['A', 'E', 'I', 'O', 'U'];
     const Consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
     let LetterPool = ['V', 'V', 'V', 'V', 'V', 'V', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'];  //Make a letter pool of 7 vowels and 9 consonants
-    // for (let Row = 1; Row < Board.length - 1; Row++) {
-    //     for (let Column = 1; Column < Board[Row].length - 1; Column++) {
-    //         const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
-    //         const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
-    //         const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
-    //         Board[Row][Column] = Letter;  // Assign the letter to the Board
+    for (let Row = 1; Row < Board.length - 1; Row++) {
+        for (let Column = 1; Column < Board[Row].length - 1; Column++) {
+            const RandSelector = Math.floor(Math.random() * LetterPool.length);  //Make a random selector to select from the LetterPool
+            const VowOrConst = LetterPool.splice(RandSelector, 1);  //Both selects and removes the element from the LetterPool
+            const Letter = VowOrConst == 'V' ? Vowels[Math.floor(Math.random() * Vowels.length)] : Consonants[Math.floor(Math.random() * Consonants.length)];
+            Board[Row][Column] = Letter;  // Assign the letter to the Board
 
-    //         // console.log(`LetterPool Length = ${LetterPool.length}
-    //         // \rRandSelector = ${RandSelector}
-    //         // \rVowel or Constant = '${VowOrConst}'
-    //         // \rLetter selected = ${Letter}\n`);  // For debugging
-    //     }
-    // }
+            // console.log(`LetterPool Length = ${LetterPool.length}
+            // \rRandSelector = ${RandSelector}
+            // \rVowel or Constant = '${VowOrConst}'
+            // \rLetter selected = ${Letter}\n`);  // For debugging
+        }
+    }
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
     //words that should fail: bob, kayak, peep, deed
     //words that should be accepted: boy, bay, dead, pee, kay, bay, deep, pea, make
-    Board[1] = [null, 'B', 'O', 'M', 'F', null];
-    Board[2] = [null, 'K', 'A', 'Y', 'O', null];
-    Board[3] = [null, 'P', 'E', 'V', 'U', null];
-    Board[4] = [null, 'D', 'E', 'A', 'D', null];
+    // Board[1] = [null, 'B', 'O', 'M', 'F', null];
+    // Board[2] = [null, 'K', 'A', 'Y', 'O', null];
+    // Board[3] = [null, 'P', 'E', 'V', 'U', null];
+    // Board[4] = [null, 'D', 'E', 'A', 'D', null];
 
     // console.log("Game board:");
     // Board.map((Row, RowIndex) => {  //for debugging/displaying the Server's game board
@@ -276,7 +276,7 @@ exports.DequeuePlayer = (req, res) => {
     console.log(`Searching for player with username "${req.session.Username}" inside this array\n${JSON.stringify(PlayersGameInfo)}`);
     PlayersGameInfo.forEach((Entry, EntryIndex) => {
         if(Entry.Username === req.session.Username) {
-            PlayersGameInfo.slice(EntryIndex, 1);  //Remove the player from the PlayersGameInfo array
+            PlayersGameInfo.splice(EntryIndex, 1);  //Remove the player from the PlayersGameInfo array
             console.log(`Found the player with the username supplied and removed them\n${JSON.stringify(PlayersGameInfo)}`);
             return true;
         }
