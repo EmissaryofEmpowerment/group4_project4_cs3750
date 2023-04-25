@@ -13,14 +13,15 @@ function WaitingRoom(props) {
     let intervalId;
 
     const handleStartGame = (e) => {
+        console.log()
         setStart(true);
         document.getElementById("StartButton").disabled = true;
         intervalId = setInterval(checkReady, 500); // Run checkStartGameTimer every 500ms
 
         // When the user switches away from the current tab, clear the interval
-        window.addEventListener('blur', () => {
-            clearInterval(intervalId);
-        });
+        // window.addEventListener('blur', () => {
+        //     clearInterval(intervalId);
+        // });
 
         axios.put('api/EnqueuePlayer')
         .catch((err) => {
@@ -77,7 +78,7 @@ function WaitingRoom(props) {
                 <div className="container">
                     <h1>Waiting Room</h1>
                     <h1>{status}</h1>
-                    {start ? <h2>You are in the queue</h2> : <h2>You are NOT in the queue</h2>}
+                    {start ? <h2>You are in the queue</h2> : <h2>Click 'Start Game' to be added to the queue</h2>}
                     <p>The game will start in {time}</p>
                     <button onClick={handleStartGame} id="StartButton">Start Game</button>
                 </div>
