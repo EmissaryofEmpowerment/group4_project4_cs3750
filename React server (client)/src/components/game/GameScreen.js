@@ -346,15 +346,19 @@ export function GameScreen() {
             </div>
             <div className='row'>
                 <p>
-                    Guessed Words:
+                    Guessed Words:  {GuessedWords.map((Word, WordIndex) => (
+                        GuessedWords.length - 1 !== WordIndex ?
+                        Word + ", " :
+                        Word
+                    ))}
                 </p>
             </div>
-            <div className='row'>
+            {/* <div className='row'>
                 {/* <ul className='list-group'>
                     {GuessedWords.map(Word => <li key={Word} className='list-group-item'>{Word}</li>)}
-                </ul> */}
-                {GuessedWords.map(Word => <div key={Word} className='col-md-2'>{Word}</div>)}  {/* The col-md-2 will make it so that there will be 6 words per line before it overflows onto a new line */}
-            </div>
+                </ul> 
+                {GuessedWords.map(Word => <div key={Word} className='col-md-2'>{Word}</div>)}  {/* The col-md-2 will make it so that there will be 6 words per line before it overflows onto a new line 
+            </div> */}
         </div>
     );
 }

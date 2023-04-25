@@ -1,6 +1,6 @@
 //make your routes here
 global.WaitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
-let Board;
+let Board = [];
 
 // Will contain an array of objects corresponding with the players in the game
 let PlayersGameInfo = [];
@@ -34,7 +34,7 @@ function GenerateBoard() {
 
     // Only used for debugging to prevent dynamic board creation (makes it easer to debug because the board stays constant)
     //words that should fail: bob, kayak, peep, deed
-    //words that should be accepted: boy, bay, dead, pee, kay, bay, deep, pea, make
+    //words that should be accepted: boy, bay, dead, pee, kay, bay, deep, pea, make, map
     // Board[1] = [null, 'B', 'O', 'M', 'F', null];
     // Board[2] = [null, 'K', 'A', 'Y', 'O', null];
     // Board[3] = [null, 'P', 'E', 'V', 'U', null];
@@ -293,7 +293,7 @@ exports.StartGame = async (req, res) => {
     }
     console.log("WaitingPlayers " + WaitingPlayers);
     if (WaitingPlayers === 0) {
-        if(Board = []) {  //if the board has not been generated yet
+        if(Board.length === 0) {  //if the board has not been generated yet
             GenerateBoard();
         }
         console.log(`Game ready`);
@@ -307,9 +307,12 @@ exports.StartGame = async (req, res) => {
 
 exports.Restart = async (req, res) => {
     console.log("\nGameLogicControllers.js file/Restart route");
-    if (PlayersGameInfo.length != WaitingPlayers) {  //a player presses the "Go To Waiting Room" on the result screen, then reset the players that are playing and the board back to their defaults.
+    if (Board.length !== 0) {  //a player presses the "Go To Waiting Room" on the result screen, then reset the players that are playing and the board back to their defaults.
+        console.log("Resetting the PlayerGameInfo and Board back to defaults.")
         PlayersGameInfo = [];
         Board = [];
+        console.log(`PlayersGameInfo: ${PlayersGameInfo}
+        \rBoard: ${Board}`);
     }
     if (req.session.Inline === false) {
         req.session.Inline = true;
