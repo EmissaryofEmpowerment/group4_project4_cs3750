@@ -29,12 +29,13 @@ function WaitingRoom(props) {
         });
 
         // When the user returns to the tab, start the interval again
-        // window.addEventListener('focus', () => {
-        //     intervalId = setInterval(checkReady, 500);
-        // });
+        window.addEventListener('focus', () => {
+            intervalId = setInterval(checkReady, 500);
+        });
 
         setTimeout(() => {
             clearInterval(intervalId); // Stop the loop after 2 minutes
+            console.log(`The remaining players didn't click start`);
         }, 120000);
     };
 
