@@ -65,22 +65,6 @@ export function GameScreen() {
         return () => window.removeEventListener('keydown', handleKeyDown);  // This return keeps the event listener from chaining for multiple times.
     }, [PlayerWord, GameBoard]);
 
-    // const handleStartGame = () => {
-    //     console.log('60 sec Timer started');
-    //     setTime(60); // Set initial value of timer
-    //     GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
-    //         setTime((time) => time - 1); // Decrease the timer by 1 every second
-    //     }, 1000);
-    //     // UpdatePlayerScores();  //has to be called initially to fetch the board at the start of the game because the setInterval waits until the time runs out first before calling.
-    //     ScoreUpdateTimer = setInterval(UpdatePlayerScores, 5000);  //Every 5 seconds run this function to see if the scores changed on the server
-
-    //     setTimeout(() => {
-    //         console.log('Timer ended');
-    //         clearInterval(GameTimer); // Clear the GameTimer
-    //         clearInterval(ScoreUpdateTimer);  //Clear the ScoreUpdateTimer
-    //         navigate('/ResultScreen');
-    //     }, 6000);
-    // }
 
     const handleStartGame = () => {
         console.log('60 sec Timer started');
