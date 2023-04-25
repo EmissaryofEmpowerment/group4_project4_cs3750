@@ -111,7 +111,7 @@ exports.Login = (req, res) => {
                         console.log(`The following error occurred in saving the session:\n\r\t${err}`);
                     }
                     else {
-                        console.log("The session is now " + JSON.stringify(req.session));
+                        console.log("Inside AccountControllers.js: The session is now " + JSON.stringify(req.session));
                         // res.send(JSON.stringify(req.session));  //only for debugging
                         res.json({
                             IsAuth: true,
