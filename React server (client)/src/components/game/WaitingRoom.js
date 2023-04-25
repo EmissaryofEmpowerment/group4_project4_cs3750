@@ -19,9 +19,9 @@ function WaitingRoom(props) {
         intervalId = setInterval(checkReady, 500); // Run checkStartGameTimer every 500ms
 
         // When the user switches away from the current tab, clear the interval
-        window.addEventListener('blur', () => {
-            clearInterval(intervalId);
-        });
+        // window.addEventListener('blur', () => {
+        //     clearInterval(intervalId);
+        // });
 
         axios.put('api/EnqueuePlayer')
         .catch((err) => {
@@ -29,9 +29,9 @@ function WaitingRoom(props) {
         });
 
        // When the user returns to the tab, start the interval again
-        window.addEventListener('focus', () => {
-            intervalId = setInterval(checkReady, 500);
-        });
+        // window.addEventListener('focus', () => {
+        //     intervalId = setInterval(checkReady, 500);
+        // });
 
         setTimeout(() => {
             clearInterval(intervalId); // Stop the loop after 2 minutes

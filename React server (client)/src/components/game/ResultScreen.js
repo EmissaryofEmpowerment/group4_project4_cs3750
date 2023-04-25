@@ -30,11 +30,6 @@ export function ResultScreen() {
             });
     }, []);
 
-    const Contruct = (newWord, fScore, gResults) => {
-        SetFoundWords(prevWords => [...prevWords, newWord]);
-        SetScore(fScore);
-        SetResults(gResults);
-    };
 
     const GoToWaitingRoom = () => {
         axios.get("/api/Restart")
@@ -52,6 +47,7 @@ export function ResultScreen() {
 
     //Contruct()
     let Score = sessionStorage.getItem("player1");
+    console.log(`Value of Score${Score}`);
     // SetScore(Score);
 
     const PlayersScores = () => {
@@ -92,7 +88,7 @@ export function ResultScreen() {
             {!IsAuth ?
                 <Navigate to="/" replace={true} />
                 : <>
-                    <h1>{results ? `Congrats! you won!` : `Sorry you lost. `}</h1>
+                    {/* <h1>{results ? `Congrats! you won!` : `Sorry you lost. `}</h1> */}
                     <h2>Your score is: {Score}</h2>
                     <h2>Words you found:</h2>
                     <ul>
