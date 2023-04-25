@@ -9,7 +9,6 @@ export function GameScreen() {
     const [GuessedWords, SetGuessedWords] = useState([]);
     const [Score, SetScore] = useState(0);
     const [PlayersScores, SetPlayersScores] = useState([]);
-    const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const navigate = useNavigate();
     let storedTime;

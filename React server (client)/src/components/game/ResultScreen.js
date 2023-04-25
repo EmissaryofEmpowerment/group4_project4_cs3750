@@ -8,10 +8,7 @@ import { UserContext } from "../../index";
 
 // make API call to increment waiting players and set req.session.Inline = true;
 
-
 export function ResultScreen() {
-    const [results, SetResults] = useState(false);
-    const [score, SetScore] = useState(0);
     const [foundWords, SetFoundWords] = useState([]);
     const [PlayersGameInfo, SetPlayersGameInfo] = useState([]);
     const navigate = useNavigate();
