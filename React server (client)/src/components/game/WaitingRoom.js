@@ -16,7 +16,7 @@ function WaitingRoom() {
         console.log()
         setStart(true);
         document.getElementById("StartButton").disabled = true;
-        intervalId = setInterval(checkReady, 500); // Run checkStartGameTimer every 500ms
+        intervalId = setInterval(checkReady, 250); // Run checkStartGameTimer every 250ms
 
         // When the user switches away from the current tab, clear the interval
         // window.addEventListener('blur', () => {
@@ -38,7 +38,6 @@ function WaitingRoom() {
             console.log(`The remaining players didn't click start`);
         }, 120000);
     };
-
 
     const checkReady = () => {
         axios.put("/api/StartGame/")
@@ -70,7 +69,6 @@ function WaitingRoom() {
         }, 3000);
     }
 
-
     return (
         <>
             {!IsAuth ?
@@ -80,7 +78,7 @@ function WaitingRoom() {
                     <h1>Waiting Room</h1>
                     <h1>{status}</h1>
                     {start ? <h2>You are in the queue</h2> : <h2>Click 'Start Game' to be added to the queue</h2>}
-                    <p>The game will start in {time}</p>
+                    {start && status === "Game ready" ? <p>The game will start in {time}</p> : <></>}
                     <button onClick={handleStartGame} id="StartButton">Start Game</button>
                 </div>
             }

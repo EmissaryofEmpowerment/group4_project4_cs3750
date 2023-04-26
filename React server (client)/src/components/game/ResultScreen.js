@@ -9,7 +9,7 @@ import { UserContext } from "../../index";
 // make API call to increment waiting players and set req.session.Inline = true;
 
 export function ResultScreen() {
-    const [foundWords, SetFoundWords] = useState([]);
+    // const [foundWords, SetFoundWords] = useState([]);
     const [PlayersGameInfo, SetPlayersGameInfo] = useState([]);
     const navigate = useNavigate();
 
@@ -27,7 +27,6 @@ export function ResultScreen() {
             });
     }, []);
 
-
     const GoToWaitingRoom = () => {
         axios.get("/api/Restart")
           .then((res) => {
@@ -39,8 +38,6 @@ export function ResultScreen() {
           });
           
     };
-
-
 
     //Contruct()
     let Score = sessionStorage.getItem("player1");
@@ -85,13 +82,13 @@ export function ResultScreen() {
             {!IsAuth ?
                 <Navigate to="/" replace={true} />
                 : <>
-                    <h2>Your score is: {Score}</h2>
+                    {/* <h2>Your score is: {Score}</h2>
                     <h2>Words you found:</h2>
                     <ul>
                         {foundWords.map((word, index) => (
                             <li key={index}>{word}</li>
                         ))}
-                    </ul>
+                    </ul> */}
                     <PlayersScores />
                     <h2>Go to Waiting Room to play again.</h2>
                     <button onClick={GoToWaitingRoom}>Go to Waiting Room</button>

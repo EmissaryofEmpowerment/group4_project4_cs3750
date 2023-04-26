@@ -2,7 +2,6 @@ const {
     AppDictionary,
 } = require("../../models/models");  //include our "models.js" module so we can use it inside this file.  Module documentation https://www.w3schools.com/nodejs/nodejs_modules.asp
 
-
 //make your routes here
 global.WaitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
 let Board = [];
@@ -57,6 +56,7 @@ exports.GetBoard = (req, res) => {
     req.session.Score = 0;  //Set the starting score for the server and client cookie
     req.session.PreviousWords = [];  //clears/makes a session variable for the previous word the user has guessed
     req.session.Board = Board;  //Save the board to the session
+    
     req.session.save(function (err) {  //saves the session and cookie for both the client and server
         if (err) {
             console.log(`The following error occurred in saving the session:\n\r\t${err}`);
@@ -95,8 +95,10 @@ function FindWord(Word, Board) {
             }
         }
     }
+
     if (!WordFound) { console.log(`Unable to find the word "${Word}" on the board`); }
     else { console.log(`Found the word "${Word}" on the board`); }
+    
     return WordFound;  //The word was not found
 };
 
@@ -115,7 +117,7 @@ function FindWordRecursion(Word, Board, Row, Column, SelectedCells) {
     \r\tSelectedCells: ${JSON.stringify(SelectedCells)}`);
 
     // base case
-    if (Word == null || Word == '') {  // We consumed all the characters for the word, meaning the word is on the board.
+    if (Word === null || Word === '') {  // We consumed all the characters for the word, meaning the word is on the board.
         console.log("Found all the letters for the word on the board.");
         return true;
     }
@@ -281,7 +283,7 @@ exports.EnqueuePlayer = (req, res) => {
     console.log(`Added the player to the the array\n${JSON.stringify(PlayersGameInfo)}`)
 }
 
-exports.DequeuePlayer = (req, res) => {
+exports.DequeuePlayer = (req, res) => {  // Not currently being used but implemented
     console.log("\nGameLogicControllers.js file/DequeuePlayer route");
     console.log(`Searching for player with username "${req.session.Username}" inside this array\n${JSON.stringify(PlayersGameInfo)}`);
     PlayersGameInfo.forEach((Entry, EntryIndex) => {
