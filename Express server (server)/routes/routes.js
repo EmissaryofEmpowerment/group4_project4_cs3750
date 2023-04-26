@@ -12,13 +12,6 @@ const {
 } = require("./controllers/AccountControllers");  //imports everything from inside the {} from the AccountControllers.js file
 
 const {
-    ControllerToRead1,
-    ControllerToCreate1,
-    ControllerToUpdate1,
-    ControllerToDelete1,
-} = require("./controllers/PlayerEntryControllers");  //imports everything from inside the {} from the AccountControllers.js file
-
-const {
     GetBoard,
     IsValidWord,
     IsGameWord,
@@ -64,9 +57,6 @@ router.post("/Login", Login);
 router.post("/Logout", Logout);
 
 router.get("/IsAuth", IsAuth);
-//#endregion
-
-//#region PlayerEntry routes
 //#endregion
 
 //#region GameLogic routes

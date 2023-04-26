@@ -1,3 +1,8 @@
+const {
+    AppDictionary,
+} = require("../../models/models");  //include our "models.js" module so we can use it inside this file.  Module documentation https://www.w3schools.com/nodejs/nodejs_modules.asp
+
+
 //make your routes here
 global.WaitingPlayers = 0; // when a user signs in, this count will be incremented and decremented on logout
 let Board = [];
@@ -172,29 +177,31 @@ exports.IsValidWord = async (req, res) => {
     console.log("\nGameLogicControllers.js file/IsValidWord route");
     let Word = req.params.Word;
     console.log(`Determining if the word "${Word}" is a valid word`);
-    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
-    const dataj = await data.json();
+        
+    // const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
+    // const dataj = await data.json();
+    let Results = await AppDictionary.findOne({ Word: Word.toLowerCase() });  //Results replaces dataj[0]
 
     let WordFound = false;  //Default value for the variable WordFound
-    let WordNotGuessed = !req.session.PreviousWords.includes(Word)
-    if (dataj[0] && Word.length >= 3 && WordNotGuessed) { //if the word has a definition and it is at least 3 characters long, then check to make sure it is on the board
+    let WordNotGuessed = !req.session.PreviousWords.includes(Word);
+    if (Results && Word.length >= 3 && WordNotGuessed) { //if the word has a definition and it is at least 3 characters long, then check to make sure it is on the board  dataj[0]
         console.log("The word has a definition, now checking to see if it on the board");
         WordFound = Boolean(FindWord(Word.toUpperCase(), req.session.Board));  //What will be return is a 0 for false or a 1 for true, because we use a bitwise or operator inside this function.  This is why we have Boolean() around the return, it will convert it into a true/false condition.
     }
     else {
         console.log(`\nSee the below summary for why the word "${Word}" was rejected:
-        \rHas a definition: ${dataj[0] ? true : false}
+        \rHas a definition: ${Results ? true : false}  
         \rMeets minimum length: ${Word.length >= 3}
         \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
-        \rWord on the board: ${WordFound}`);
+        \rWord on the board: ${WordFound}`);  //dataj[0]
     }
 
     //the following console.log is for debugging purposes
-    // console.log(`\nHas a definition: ${dataj[0] ? true : false}
+    // console.log(`\nHas a definition: ${Results ? true : false}
     // \rMeets minimum length: ${Word.length >= 3}
     // \rWord not been used before: ${WordNotGuessed} (if this is false, you can ignore the below condition)
-    // \rWord on the board: ${WordFound}`);
-    let MeetsRequirements = (dataj[0] && Word.length >= 3 && WordNotGuessed && WordFound);
+    // \rWord on the board: ${WordFound}`);  //dataj[0]
+    let MeetsRequirements = (Results && Word.length >= 3 && WordNotGuessed && WordFound);  //dataj[0]
     console.log(`\nThe value of MeetsRequirements ${MeetsRequirements}`);
     if (MeetsRequirements) {  //if the word supplied is a word, it has a length of at least 3, the word was on the board, and the word was not previously guessed, then add the required points to the session to be sent to the client.
         let WordLength = Word.length;
@@ -241,14 +248,15 @@ exports.IsGameWord = async (req, res) => {
     console.log("\nGameLogicControllers.js file/IsGameWord route");
     let Word = req.params.Word
     console.log(`Determining if the word "${Word}" is a word`);
-    const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
-    const dataj = await data.json();
+    // const data = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${Word}`);
+    // const dataj = await data.json();
+    let Results = await AppDictionary.findOne({ Word: Word.toLowerCase() });  //Results replaces dataj[0]
 
-    console.log(`The word has a definition: ${dataj[0] ? true : false}
-    \rThe word meets minimum length: ${Word.length >= 3}`);
+    console.log(`The word has a definition: ${Results ? true : false}
+    \rThe word meets minimum length: ${Word.length >= 3}`);  //dataj[0]
 
     res.json({
-        IsWord: dataj[0] && Word.length >= 3 ? true : false,  //formatted this way so it will always return a true/false statement instead of the data inside the dataj[0]
+        IsWord: Results && Word.length >= 3 ? true : false,  //formatted this way so it will always return a true/false statement instead of the data inside the dataj[0]  dataj[0]
     });
 }
 
@@ -319,6 +327,20 @@ exports.Restart = async (req, res) => {
     if (req.session.Inline === false) {
         req.session.Inline = true;
         WaitingPlayers++;
+        
+        delete req.session.Score;
+        delete req.session.PreviousWords;
+        delete req.session.Board;
+        
+        req.session.save(function (err) {  //saves the session and cookie for both the client and server
+            if (err) {
+                console.log(`The following error occurred in saving the session:\n\r\t${err}`);
+            }
+            else {
+                console.log("The session is now " + JSON.stringify(req.session));
+            }
+        });
+
         console.log(`Waiting Players: ${WaitingPlayers}`);
         res.send("Restarting Game");
     }
