@@ -273,13 +273,11 @@ exports.IsGameWordEmpty = (req, res) => {
 exports.EnqueuePlayer = (req, res) => {
     console.log("\nGameLogicControllers.js file/EnqueuePlayer route");
     console.log(`Adding the user with the username "${req.session.Username}" to the queue`);
-
     PlayersGameInfo.push({
         Username: req.session.Username,
         Score: 0,
         GuessedWords: []
     });
-    
     console.log(`Added the player to the the array\n${JSON.stringify(PlayersGameInfo)}`)
 }
 
@@ -300,12 +298,12 @@ exports.DequeuePlayer = (req, res) => {  // Not currently being used but impleme
 exports.StartGame = async (req, res) => {
     console.log(`\nGameLogicControllers.js file/StartGame route for user ${req.session.Username}`);
     if (req.session.Inline === true) {
-        WaitingPlayers--; // the user is either added or removed from queue
+        WaitingPlayers--; // the user is either added or removed from que
         req.session.Inline = false;
     }
     console.log("WaitingPlayers " + WaitingPlayers);
     if (WaitingPlayers === 0) {
-        if(Board.length === 0) {  //if the board has not been generated yet, generate it
+        if(Board.length === 0) {  //if the board has not been generated yet
             GenerateBoard();
         }
         console.log(`Game ready`);
