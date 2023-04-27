@@ -52,9 +52,9 @@ function App() {
                         <Route exact path="/NewUser" element={<NewUserForm SetIsAuth={SetIsAuth} />} />  {/* This is the page that will allow new users to create an account */}
                         <Route exact path="/Logout" element={<Logout SetIsAuth={SetIsAuth} />} />
                         <Route element={<ProtectedRoute />}>  {/* Place the routes you wish to be protected (require someone to be logged in to view) in here */}
-                            <Route exact path="/WaitingRoom" element={<WaitingRoom />} />
+                            <Route exact path="/WaitingRoom" element={<WaitingRoom SetIsAuth={SetIsAuth} />} />
                             <Route exact path="/Game" element={<GameScreen />} />  {/* This is the game board the user plays the game on */}
-                            <Route exact path="/ResultScreen" element={<ResultScreen />} />
+                            <Route exact path="/ResultScreen" element={<ResultScreen SetIsAuth={SetIsAuth} />} />
                         </Route>
                     </Routes>
                 </>}

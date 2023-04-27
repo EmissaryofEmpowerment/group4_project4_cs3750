@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import axios from "../../util/axios"
 import { UserContext } from "../../index";
 
-function WaitingRoom() {
+function WaitingRoom(props) {
     const [status, setStatus] = useState('');
     const [start, setStart] = useState(false);
     const [time, setTime] = useState('');
@@ -28,7 +28,7 @@ function WaitingRoom() {
             console.log(`Unable to enqueue the player for the below reason\n${err.message}`);
         });
 
-        // When the user returns to the tab, start the interval again
+       // When the user returns to the tab, start the interval again
         // window.addEventListener('focus', () => {
         //     intervalId = setInterval(checkReady, 500);
         // });
