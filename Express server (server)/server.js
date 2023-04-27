@@ -50,6 +50,7 @@ app.use(session({
     }
 }));
 
+
 app.get("/", (req, res) =>  //this is the root url for the server
     res.send("Hello there!! Cheers !! The server is up and running")
 );

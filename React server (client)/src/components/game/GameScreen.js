@@ -11,8 +11,7 @@ export function GameScreen() {
     const [PlayersScores, SetPlayersScores] = useState([]);
     const [time, setTime] = useState('');
     const navigate = useNavigate();
-
-    let StoredTime;
+    let storedTime;
     let GameTimer;
     let ScoreUpdateTimer;
 
@@ -30,7 +29,7 @@ export function GameScreen() {
             });
     }, [])
 
-    //Run this useEffect every time the PlayerWord or GameBoard changes
+    //Run this useEffect every time the PlayerWord changes
     useEffect(() => {
         const handleKeyDown = (e) => {
             // e.preventDefault();  // documentation for object model events https://www.w3.org/TR/DOM-Level-2-Events/events.html
@@ -70,23 +69,23 @@ export function GameScreen() {
         console.log('60 sec Timer started');
 
         // Check if there's an initial time saved in local storage
-        StoredTime = localStorage.getItem('initialTime');
+        storedTime = localStorage.getItem('initialTime');
 
-        let RemainingTime;
-        if (StoredTime) {
+        let remainingTime;
+        if (storedTime) {
             // Calculate the remaining time based on the difference between the start time and the current time
-            const initialTime = parseInt(StoredTime);
+            const initialTime = parseInt(storedTime);
             const startTime = parseInt(localStorage.getItem('startTime'));
             const currentTime = new Date().getTime();
             const elapsedTime = Math.floor((currentTime - startTime) / 1000); // Calculate elapsed seconds
-            RemainingTime = Math.max(0, initialTime - elapsedTime);
+            remainingTime = Math.max(0, initialTime - elapsedTime);
         } else {
-            RemainingTime = 60; // Default value
-            localStorage.setItem('initialTime', RemainingTime.toString());
+            remainingTime = 60; // Default value
+            localStorage.setItem('initialTime', remainingTime.toString());
             localStorage.setItem('startTime', new Date().getTime().toString());
         }
 
-        setTime(RemainingTime); // Set remaining value of timer
+        setTime(remainingTime); // Set remaining value of timer
 
         GameTimer = setInterval(() => { // Use setInterval instead of setTimeout
             setTime((time) => time - 1); // Decrease the timer by 1 every second
@@ -102,7 +101,7 @@ export function GameScreen() {
             localStorage.removeItem('initialTime');
             localStorage.removeItem('startTime'); // Remove the start time as well
             navigate('/ResultScreen');
-        }, RemainingTime * 1000);
+        }, remainingTime * 1000);
     }
 
     function UpdatePlayerScores() {
