@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  angular:
+    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    build:
+      context: './React server (client)'
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./React server (client):/usr/src/app
+      - /usr/src/app/node_modules
+  node:
+    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    build:
+      context: './Express server (server)'
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./Express server (server):/usr/src/app
+      - /usr/src/app/node_modules

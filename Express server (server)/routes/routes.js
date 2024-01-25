@@ -43,11 +43,11 @@ router.get("/", (req, res) => {
 
 // router.post("/post", ControllerToCreate1);  //links the post http (Create) response to the controller defined inside the controllers.js file
 
-// router.put("put/:id", ControllerToUpdate1);  //links the put http response (Update) to the controller defined inside the controllers.js file
+// router.put("/put/:id", ControllerToUpdate1);  //links the put http response (Update) to the controller defined inside the controllers.js file
 // or another method that does the same thing
 // router.post("<URL>/:id", ControllerToUpdate);
 
-// router.delete("delete/:id", ControllerToDelete1);  //links the delete http response (Delete) to the controller defined inside the controllers.js file
+// router.delete("/delete/:id", ControllerToDelete1);  //links the delete http response (Delete) to the controller defined inside the controllers.js file
 // or another method that does the same thing
 // router.post("<URL>/:id", ControllerToDelete);
 //#endregion

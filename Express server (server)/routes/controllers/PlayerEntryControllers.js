@@ -31,7 +31,7 @@ exports.ControllerToCreate1 = (req, res) => {
         })
         .catch((err) => {
             console.log(`The following error occurred with creating the data:\n${err}`);
-            re.status(404).json({
+            res.status(404).json({
                 message: "Sorry your data cannot be added",
                 error: err.message,
             });
